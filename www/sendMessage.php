@@ -1,9 +1,9 @@
 <?php
 
     $adminEmail = "koreshkov200@mail.ru";
-    $userName = $_GET['name'];
-    $userSurname = $_GET['surname'];
-    $userMessage = $_GET['message'];
+    $userName = $_POST['name'];
+    $userSurname = $_POST['surname'];
+    $userMessage = $_POST['message'];
 
     mail($adminEmail, "Testing", $userMessage);
 
