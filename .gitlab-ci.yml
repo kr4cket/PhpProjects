@@ -1,0 +1,104 @@
+stages:
+    - deploy
+    - install
+    - build
+    - restart
+    - tests
+
+deploy:
+    stage: deploy
+    script: ~/v3/deploy.sh $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+make-subdomain:
+    stage: deploy
+    except:
+        - master
+    when: manual
+    script: ~/v3/make-subdomain.sh $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+autoremove-branches:
+    stage: deploy
+    only:
+        refs:
+            - master
+    when: manual
+    script: ~/v3/autoremove-branches.sh $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+install-composer:
+    stage: install
+    only:
+        changes:
+            - www/local/composer.json
+            - www/local/composer.lock
+            - composer.json
+            - composer.lock
+    script: ~/v3/composer.sh $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+install-npm:
+    stage: install
+    only:
+        changes:
+            - www/local/package.json
+            - www/local/package-lock.json
+            - www/local/yarn.lock
+            - www/local/pnpm-lock.yaml
+            - resources/package.json
+            - resources/package-lock.json
+            - resources/yarn.lock
+            - resources/pnpm-lock.yaml
+    script: ~/v3/npm.sh assembly $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+install-npm-design:
+    stage: install
+    only:
+        changes:
+            - design/package.json
+            - design/package-lock.json
+            - design/yarn.lock
+            - design/pnpm-lock.yaml
+    script: ~/v3/npm.sh design $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+build-frontend:
+    stage: build
+    only:
+        changes:
+            - www/local/package.json
+            - www/local/gulpfile.js
+            - www/local/webpack.config.js
+            - www/local/images/**/*
+            - www/local/css/**/*
+            - www/local/js/**/*
+            - resources/package.json
+            - resources/gulpfile.js
+            - resources/webpack.config.js
+            - resources/images/**/*
+            - resources/css/**/*
+            - resources/js/**/*
+    script: ~/v3/build-frontend.sh assembly $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+build-frontend-design:
+    stage: build
+    only:
+        changes:
+            - design/package.json
+            - design/gulpfile.js
+            - design/webpack.config.js
+            - design/images/**/*
+            - design/css/**/*
+            - design/js/**/*
+    script: ~/v3/build-frontend.sh design $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+restart:
+    stage: restart
+    script:
+        - ~/v3/restart.sh $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+### Запуск кастомных артисан-команд. artisan-command - уникальный идентификатор. command - название команды
+#artisan-command:
+#    stage: restart
+#    script: ~/v3/laravel-artisan.sh command $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL
+
+### Если на проекте есть автотесты
+#tests:
+#    stage: tests
+#    script: ~/v3/tests.sh $CI_PROJECT_NAMESPACE $CI_PROJECT_NAME $CI_COMMIT_REF_NAME $GITLAB_USER_EMAIL

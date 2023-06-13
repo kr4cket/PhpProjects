@@ -1,0 +1,76 @@
+# IDE and repos
+.idea
+.vscode
+.svn
+
+# Archives
+*.7z
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.tar.gz.*
+*.tgz
+*.zip
+
+# Logs, backups, and trash
+*.log
+*.bak
+Thumbs.db
+desktop.ini
+.DS_Store
+.DS_Store?
+*.DS_Store
+
+# Video & audio
+*.wmv
+*.mpg
+*.mpeg
+*.mp4
+*.mov
+*.flv
+*.avi
+*.ogv
+*.ogg
+*.webm
+*.wav
+*.mp3
+*.wma
+*.m4v
+
+# Content
+*.psd
+*.pdf
+
+# Bitrix
+html_pages
+bx_1c_import_lite.php
+www/bitrix
+www/upload
+www/mysql_debug.sql
+www/restore.php
+www/local/define.const.php
+www/local/logs/*
+www/local/vendor/*
+!www/local/logs/.gitkeep
+www/.xml
+
+# Project files
+yandex_*.html
+www/test.php
+www/test*
+node_modules
+sitemap*.xml
+robots.txt
+tmp
+
+# Static bundles
+/www/local/build/*
+!/www/local/build/.gitkeep
+
+/design/build/*
+!/design/build/.gitkeep
+
+/public/build/*
+!/public/build/.gitkeep
