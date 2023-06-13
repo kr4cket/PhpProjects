@@ -7,8 +7,17 @@
 </head>
 
 <body>
-<p>Hello World</p>
-<button>Let's start</button>
+<form method="post", action="sendMessage.php">
+    <input type="text", name="surname", placeholder="Enter Surname">
+	<br>
+    <input type="text", name="name", placeholder="Enter Name">
+	<br>
+    <input type="text", name="phonenumber", required placeholder="Enter Phone number">
+	<br>
+    <input type="text", name="message", placeholder="Text message">
+	<br>
+	<input type="submit", value="Send">
+</form>
 </body>
 
 </html>
