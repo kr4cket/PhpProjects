@@ -76,20 +76,20 @@
 <h3>Обратная связь</h3>
 
 <form method="post">
-    <h5>Surname</h5>
-    <input type="text" name="surname" placeholder="Enter Surname">
+    <h5>Фамилия</h5>
+    <input type="text" name="surname" placeholder="Фамилия..">
 	<br>
-	<h5>Name</h5>
-    <input type="text" name="name" placeholder="Enter Name">
+	<h5>Имя</h5>
+    <input type="text" name="name" required placeholder="Имя..">
 	<br>
-	<h5>Phone number</h5>
-    <input type="text" name="phoneNumber"  placeholder="Enter Phone number">
+	<h5>Номер телефона</h5>
+    <input type="text" name="phoneNumber" required placeholder="Номер телефона..">
 	<br>
-	<h5>Message</h5>
-    <input type="text" name="message" placeholder="Text message">
+	<h5>Отзыв</h5>
+    <input type="text" name="message" placeholder="Отзыв..">
 	<br>
 	<br>
-	<input type="submit" name="sendButton"value="Send">
+	<input type="submit" name="sendButton" value="Send">
 </form>
 
 
