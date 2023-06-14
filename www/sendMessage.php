@@ -1,12 +1,12 @@
 <?php
 
-    $adminEmail = "koreshkov200@mail.ru";
+    CONST ADMIN_EMAIL = "koreshkov200@mail.ru";
     $userName = $_POST['name'];
     $userSurname = $_POST['surname'];
     $userMessage = $_POST['message'];
 
-    mail($adminEmail, "Testing", $userMessage);
+    mail(ADMIN_EMAIL, "Отзыв пользователя $userName $userSurname", $userMessage);
 
-    echo "message sended";
+    echo "message successfuly sended";
 
 ?>
