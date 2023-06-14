@@ -21,15 +21,18 @@
 
     function sendMessage($data)
     {
-        $userName = base64_encode($data['name']);
-        $userSurname = base64_encode($data['surname']);
-        $userMessage = base64_encode($data['message']);
+        $userName = $data['name'];
+        $userSurname = $data['surname'];
         $userPhone = $data['phoneNumber'];
-        $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
-        $headers .= 'Content-Transfer-Encoding: base64' . "\r\n";
-        $headers .= 'From: ' .ADMIN_EMAIL;
+        
+        $userMessage = base64_encode($data['message']);
 
-        mail(ADMIN_EMAIL, "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone",$userMessage,
+        $subject_text = "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone";
+        $subject = '=?UTF-8?B?' . base64_encode($subject_text) . '?=';
+        $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
+        $headers .= 'Content-Transfer-Encoding: base64';
+
+        mail(ADMIN_EMAIL, $subject,$userMessage,
         $headers);
 
         return array("Сообщение отправлено, спасибо за отзыв =)");
