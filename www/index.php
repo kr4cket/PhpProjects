@@ -21,9 +21,9 @@
 
     function sendMessage($data)
     {
-        $userName = $data['name'];
-        $userSurname = $data['surname'];
-        $userMessage = $data['message'];
+        $userName = base64_encode($data['name']);
+        $userSurname = base64_encode($data['surname']);
+        $userMessage = base64_encode($data['message']);
         $userPhone = $data['phoneNumber'];
         $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
         $headers .= 'Content-Transfer-Encoding: base64' . "\r\n";
