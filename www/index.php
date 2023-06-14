@@ -89,7 +89,7 @@
     <input type="text" name="message" placeholder="Отзыв..">
 	<br>
 	<br>
-	<input type="submit" name="sendButton" value="Send">
+	<input type="submit" name="sendButton" value="Отправить">
 </form>
 
 
