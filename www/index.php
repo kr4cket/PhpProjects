@@ -28,6 +28,7 @@
         $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
         $headers .= 'Content-Transfer-Encoding: base64' . "\r\n";
         $headers .= 'From: ' .ADMIN_EMAIL;
+        
 
         mail(ADMIN_EMAIL, "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone",$userMessage,
         $headers);
