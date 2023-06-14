@@ -14,6 +14,11 @@
         return $messages;
     }
 
+    function isCorrect($phoneNumber) : bool
+    {
+        return !preg_match('~^(?:\+7|8)\d{10}$~', $phoneNumber);
+    }
+
     function sendMessage($data)
     {
         $userName = $data['name'];
@@ -31,10 +36,10 @@
     function validate($data) : array
     {
         $checkUserName = $data['name'];
-        $checkUserPhone = $data['phoneNumber'];
+        $checkUserPhone = rtrim($data['phoneNumber']);
         $userErrors = [];
 
-        if (empty($checkUserPhone)) {
+        if (isCorrect($checkUserPhone)) {
             array_push($userErrors, "Неправильный формат ввода телефона!");
         }
 
