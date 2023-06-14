@@ -26,6 +26,7 @@
         $userMessage = $data['message'];
         $userPhone = $data['phoneNumber'];
         $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
+        $headers .= 'Content-Transfer-Encoding: base64' . "\r\n";
 
         mail(ADMIN_EMAIL, "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone",$userMessage,
         $headers);
