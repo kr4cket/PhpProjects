@@ -4,9 +4,13 @@
     $userName = $_POST['name'];
     $userSurname = $_POST['surname'];
     $userMessage = $_POST['message'];
+    $userPhone = $_POST['phonenumber'];
 
-    mail(ADMIN_EMAIL, "Отзыв пользователя $userName $userSurname", $userMessage);
-
-    echo "message successfuly sended";
+    if(empty($userPhone)) {
+        echo "please, enter your Phone Number";
+    } else {
+    	mail(ADMIN_EMAIL, "Отзыв пользователя $userName $userSurname", $userMessage);
+    	echo "message successfuly sended";
+    }
 
 ?>
