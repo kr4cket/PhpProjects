@@ -1,15 +1,35 @@
 <?php
 
+use Validator as GlobalValidator;
+
     class Validator
     {
         protected $paramErrors = [];
+        protected static $_instance;
+        protected static $customRules = [];
+
+        private function __construct()
+        {
+            $this->customRules['onlyDigits'] = [$this, 'onlyDigits'];
+            $this->customRules['isEmpty'] = [$this, 'isEmpty'];
+            $this->customRules['isLetter'] = [$this, 'isLetter'];
+            $this->customRules['minLength'] = [$this, 'minLength'];
+        }
+
+        public static function getInstance() 
+        {
+            if (self::$_instance === null) {
+                self::$_instance = new self;
+            }    
+            return self::$_instance;
+        }
 
         public function validate($rules, $validateParam)
         {
             foreach ($rules as $rule)
-            {
-                if (method_exists($this, $rule)) {
-                    $this->paramErrors[] = $this->$rule($validateParam);
+            { 
+                if (array_key_exists( $rule, $this->customRules)) {
+                    $this->paramErrors[] = $this->customRules["$rule"]($validateParam);
                     if (isset($error)) {
                         $this->paramErrors[] = $error;
                     }
@@ -17,6 +37,10 @@
             }
         }
 
+        public function registerValidator($name, callable $func)
+        {
+            $this->customRules[$name] = $func;
+        }
         protected function onlyDigits($userInput)
         {
             if (!preg_match('~^(?:\+7|8)\d{10}$~', $userInput)) {
@@ -55,15 +79,23 @@
     {
         protected $paramRules = [];
         protected $validateParams = [];
-        protected $validator = [];
+        protected $validator;
+        protected $validator1;
         protected $data;
         public abstract function isValid();
 
         public function __construct($requestData)
         {
-            $this->validator = new Validator();
+            $this->validator = Validator::getInstance();
             $this->validateParams = $this->getNonEmptyParams($requestData);
             $this->data = $requestData;
+            Validator::getInstance()->registerValidator("isAdmin", 
+            function($input)
+            {
+                if($input != "Admin") {
+                    return "Я тебя не знаю, мне нужен Админ!";
+                }
+            });
         }
 
         private function getNonEmptyParams($data)
@@ -93,7 +125,7 @@
     {
         private const ADMIN_EMAIL = "koreshkov200@mail.ru";
         protected $paramRules = array(
-            "name" => ["isEmpty","minLength","isLetter"],
+            "name" => ["isEmpty","minLength","isLetter", "isAdmin"],
             "phoneNumber" => ["isEmpty", "onlyDigits"]
         );
 
