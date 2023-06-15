@@ -185,16 +185,16 @@ use Validator as GlobalValidator;
 
 <form method="post">
     <h5>Фамилия</h5>
-    <input type="text" name="surname" placeholder="Фамилия..">
+    <input type="text" name="surname" placeholder="Фамилия.." value="<?php echo $_POST["surname"]; ?>">
 	<br>
 	<h5>Имя</h5>
-    <input type="text" name="name" required placeholder="Имя..">
+    <input type="text" name="name" required placeholder="Имя.." value="<?php echo $_POST["name"]; ?>">
 	<br>
 	<h5>Номер телефона</h5>
-    <input type="text" name="phoneNumber" required placeholder="Номер телефона..">
+    <input type="text" name="phoneNumber" required placeholder="Номер телефона.." value="<?php echo $_POST["phoneNumber"]; ?>">
 	<br>
 	<h5>Отзыв</h5>
-    <input type="text" name="message" placeholder="Отзыв..">
+    <input type="text" name="message" placeholder="Отзыв.." value="<?php echo $_POST["message"]; ?>">
 	<br>
 	<br>
 	<input type="submit" name="sendButton" value="Отправить">
