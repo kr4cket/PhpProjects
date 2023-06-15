@@ -1,9 +1,21 @@
 <?php
 
-    abstract class UniversalValidator
+    class Validator
     {
         protected $paramErrors = [];
-        public abstract function validate($rules, $userInput);
+
+        public function validate($rules, $validateParam)
+        {
+            foreach ($rules as $rule)
+            {
+                if (method_exists($this, $rule)) {
+                    $this->paramErrors[] = $this->$rule($validateParam);
+                    if (isset($error)) {
+                        $this->paramErrors[] = $error;
+                    }
+                }
+            }
+        }
 
         protected function onlyDigits($userInput)
         {
@@ -38,64 +50,52 @@
         }
     }
 
-    class FormValidator extends UniversalValidator
-    {
-        public function validate($rules, $validateParam)
-        {
-            foreach ($rules as $rule)
-            {
-                if (method_exists($this, $rule)) {
-                    $error = $this->$rule($validateParam);
-                    if (isset($error)) {
-                        $this->paramErrors[] = $error;
-                    }
-                }
-            }
-        }
-    }
 
     abstract class MainForm
     {
-        protected $paramRules;
-        protected $validateParams;
-        protected $validator;
+        protected $paramRules = [];
+        protected $validateParams = [];
+        protected $validator = [];
+        protected $data;
+        public abstract function isValid();
 
-        function __construct()
+        public function __construct($requestData)
         {
-            $this->paramRules = array();
-            $this->validateParams = array();
-            $this->validator = new FormValidator();
+            $this->validator = new Validator();
+            $this->validateParams = $this->getNonEmptyParams($requestData);
+            $this->data = $requestData;
         }
-        public abstract function isCorrect();
 
-        public function Validation($validateParams)
+        private function getNonEmptyParams($data)
+        {
+            $newParamData = [];
+            $ruleKeys = array_keys($this->paramRules);
+            foreach ($ruleKeys as &$ruleKey) {
+                $newParamData[$ruleKey] = $data[$ruleKey];
+            }
+            return $newParamData;
+        }
+
+        public function validation($validateParams)
         {
             foreach ($validateParams as $type => $param) {
                 $this->validator->validate($this->paramRules[$type], $param);
             }
+            if ($this->validator->getErrors()) {
+                return true;
+            } else {
+                return false;
+            }
         }
-
-
     }
 
     class FormClass extends MainForm
     {
         private const ADMIN_EMAIL = "koreshkov200@mail.ru";
-        private $data;
-
-        function __construct($requestData)
-        {
-            $this->validator = new FormValidator();
-            $this->paramRules = array(
-                "name" => ["isEmpty","minLength","isLetter"],
-                "phoneNumber" => ["isEmpty", "onlyDigits"]
-            );
-            $this->validateParams = array(
-                "name" => $requestData['name'],
-                "phoneNumber" => $requestData['phoneNumber']
-            );
-            $this->data = $requestData;
-        }
+        protected $paramRules = array(
+            "name" => ["isEmpty","minLength","isLetter"],
+            "phoneNumber" => ["isEmpty", "onlyDigits"]
+        );
 
         private function sendMessage($data)
         {
@@ -113,24 +113,21 @@
             mail(self::ADMIN_EMAIL, $subject, $userMessage, $headers);
         }
 
-        public function isCorrect()
+        public function isValid()
         {
-            $this->Validation($this->validateParams);
-            if ($this->validator->getErrors()) {
+            if ($this->validation($this->validateParams)) {
                 return $this->validator->getErrors();
             } else {
                 $this->sendMessage($this->data);
                 return ["Сообщение отправлено, спасибо за отзыв =)"];
             }
         }
-
-
     }
 
     $messages = [];
     if (isset($_POST['sendButton'])) {
         $form = new FormClass($_POST);
-        $messages = $form->isCorrect();
+        $messages = $form->isValid();
     }
 
 ?>
