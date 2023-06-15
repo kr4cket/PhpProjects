@@ -1,67 +1,136 @@
-
 <?php
-    const ADMIN_EMAIL = "koreshkov200@mail.ru";
 
-    function checkForm($data)
+    abstract class UniversalValidator
     {
-        $messages = [];
-        $messages = validate($data);
+        protected $paramErrors = [];
+        public abstract function validate($rules, $userInput);
 
-        if (empty($messages)) {
-            $messages = sendMessage($data);
+        protected function onlyDigits($userInput)
+        {
+            if (!preg_match('~^(?:\+7|8)\d{10}$~', $userInput)) {
+                return "Поле введено некорректно!\n";
+            }
+        }
+        protected function isEmpty($userInput)
+        {
+            if (empty($userInput)) {
+                return "Поле должно быть заполнено!\n";
+            }
+        }
+        protected function isLetter($userInput)
+        {
+            if (preg_match("/[\d]+/", $userInput)) {
+                return "Поле должно содержать только буквы!\n";
+            }
+        }
+        protected function minLength($userInput)
+        {
+            if (strlen($userInput) < 3) {
+                return "Поле должно быть длиннее 3х символов!\n";
+            }
         }
 
-        return $messages;
+        public function getErrors()
+        {
+            if (isset($this->paramErrors)) {
+                return $this->paramErrors;
+            }
+        }
     }
 
-    function isCorrect($phoneNumber) : bool
+    class FormValidator extends UniversalValidator
     {
-        return !preg_match('~^(?:\+7|8)\d{10}$~', $phoneNumber);
+        public function validate($rules, $validateParam)
+        {
+            foreach ($rules as $rule)
+            {
+                if (method_exists($this, $rule)) {
+                    $error = $this->$rule($validateParam);
+                    if (isset($error)) {
+                        $this->paramErrors[] = $error;
+                    }
+                }
+            }
+        }
     }
 
-    function sendMessage($data)
+    abstract class MainForm
     {
-        $userName = $data['name'];
-        $userSurname = $data['surname'];
-        $userPhone = $data['phoneNumber'];
-        
-        $userMessage = base64_encode($data['message']);
+        protected $paramRules;
+        protected $validateParams;
+        protected $validator;
 
-        $subject_text = "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone";
-        $subject = '=?UTF-8?B?' . base64_encode($subject_text) . '?=';
-        $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
-        $headers .= 'Content-Transfer-Encoding: base64';
+        function __construct()
+        {
+            $this->paramRules = array();
+            $this->validateParams = array();
+            $this->validator = new FormValidator();
+        }
+        public abstract function isCorrect();
 
-        mail(ADMIN_EMAIL, $subject,$userMessage,
-        $headers);
+        public function Validation($validateParams)
+        {
+            foreach ($validateParams as $type => $param) {
+                $this->validator->validate($this->paramRules[$type], $param);
+            }
+        }
 
-        return array("Сообщение отправлено, спасибо за отзыв =)");
+
     }
 
-    function validate($data) : array
+    class FormClass extends MainForm
     {
-        $checkUserName = $data['name'];
-        $checkUserPhone = rtrim($data['phoneNumber']);
-        $userErrors = [];
+        private const ADMIN_EMAIL = "koreshkov200@mail.ru";
+        private $data;
 
-        if (isCorrect($checkUserPhone)) {
-            array_push($userErrors, "Неправильный формат ввода телефона!");
+        function __construct($requestData)
+        {
+            $this->validator = new FormValidator();
+            $this->paramRules = array(
+                "name" => ["isEmpty","minLength","isLetter"],
+                "phoneNumber" => ["isEmpty", "onlyDigits"]
+            );
+            $this->validateParams = array(
+                "name" => $requestData['name'],
+                "phoneNumber" => $requestData['phoneNumber']
+            );
+            $this->data = $requestData;
         }
 
-        if (empty($checkUserName)) {
-            array_push($userErrors, "Имя пользователя введено неккоректно!"); 
+        private function sendMessage($data)
+        {
+            $userName = $data['name'];
+            $userSurname = $data['surname'];
+            $userPhone = $data['phoneNumber'];
+            
+            $userMessage = base64_encode($data['message']);
+    
+            $subject_text = "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone";
+            $subject = '=?UTF-8?B?' . base64_encode($subject_text) . '?=';
+            $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
+            $headers .= 'Content-Transfer-Encoding: base64';
+    
+            mail(self::ADMIN_EMAIL, $subject, $userMessage, $headers);
         }
 
-        if (strlen($checkUserName) < 3) {
-            array_push($userErrors, "Имя пользователя должно быть длиннее 3х символов!"); 
+        public function isCorrect()
+        {
+            $this->Validation($this->validateParams);
+            if ($this->validator->getErrors()) {
+                return $this->validator->getErrors();
+            } else {
+                $this->sendMessage($this->data);
+                return ["Сообщение отправлено, спасибо за отзыв =)"];
+            }
         }
 
-        return $userErrors;
+
     }
 
     $messages = [];
     if (isset($_POST['sendButton'])) {
-        $messages = checkForm($_POST);
+        $form = new FormClass($_POST);
+        $messages = $form->isCorrect();
     }
 
 ?>
@@ -71,7 +140,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Hello World</title>
+<title>Обратная связь</title>
 </head>
 <body>
 
