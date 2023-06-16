@@ -77,9 +77,9 @@
     {
         protected $paramRules = [];
         protected $validateParams = [];
+        protected $valid = false;
         protected $validator;
         protected $data;
-        protected $formParameters = [];
         public abstract function isValid();
 
         public function __construct($requestData)
@@ -87,7 +87,6 @@
             $this->data = $requestData;
             $this->validator = Validator::getInstance();
             $this->validateParams = $this->getNonEmptyParams();
-            $this->formParameters = $this->getFormParams();
             $this->validator->registerValidator("isAdmin", 
             function($input)
             {
@@ -97,13 +96,6 @@
             });
         }
 
-        private function getFormParams(){
-            $params = [];
-            foreach ($this->data as $dataKey => $dataElement) {
-                $params[$dataKey] = htmlspecialchars($dataElement, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8");
-            }
-            return $params;
-        }
 
         private function getNonEmptyParams()
         {
@@ -125,7 +117,13 @@
 
         public function getFormData()
         {
-            return $this->formParameters;
+            $params = [];
+            if (!$this->valid) {
+                foreach ($this->data as $dataKey => $dataElement) {
+                    $params[$dataKey] = htmlspecialchars($dataElement, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8");
+                }
+            }
+            return $params;
         }
     }
 
@@ -159,7 +157,7 @@
                 return $this->validator->getErrors();
             } else {
                 $this->sendMessage();
-                unset($this->formParameters);
+                $this->valid = true;
                 return ["Сообщение отправлено, спасибо за отзыв =)"];
             }
         }
@@ -196,16 +194,16 @@
 
 <form method="post">
     <h5>Фамилия</h5>
-    <input type="text" name="surname" placeholder="Фамилия.." value="<?php echo $formData["surname"]; ?>">
+    <input type="text" name="surname" placeholder="Фамилия.." value="<?= $formData["surname"];?>">
 	<br>
 	<h5>Имя</h5>
-    <input type="text" name="name" required placeholder="Имя.." value="<?php echo $formData["name"]; ?>">
+    <input type="text" name="name" required placeholder="Имя.." value="<?=  $formData["name"];?>">
 	<br>
 	<h5>Номер телефона</h5>
-    <input type="text" name="phoneNumber" required placeholder="Номер телефона.." value="<?php echo $formData["phoneNumber"]; ?>">
+    <input type="text" name="phoneNumber" required placeholder="Номер телефона.." value="<?= $formData["phoneNumber"];?>">
 	<br>
 	<h5>Отзыв</h5>
-    <input type="text" name="message" placeholder="Отзыв.." value="<?php echo $formData["message"]; ?>">
+    <input type="text" name="message" placeholder="Отзыв.." value="<?= $formData["message"];?>">
 	<br>
 	<br>
 	<input type="submit" name="sendButton" value="Отправить">
