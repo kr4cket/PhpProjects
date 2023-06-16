@@ -19,6 +19,7 @@
 *.bak
 Thumbs.db
 desktop.ini
+db_connect.ini
 .DS_Store
 .DS_Store?
 *.DS_Store

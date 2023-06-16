@@ -72,7 +72,6 @@
         }
     }
 
-
     abstract class MainForm
     {
         protected $paramRules = [];
@@ -87,13 +86,6 @@
             $this->data = $requestData;
             $this->validator = Validator::getInstance();
             $this->validateParams = $this->getNonEmptyParams();
-            $this->validator->registerValidator("isAdmin", 
-            function($input)
-            {
-                if($input != "Admin") {
-                    return "Я тебя не знаю, мне нужен Админ!";
-                }
-            });
         }
 
 
@@ -122,6 +114,10 @@
                 foreach ($this->data as $dataKey => $dataElement) {
                     $params[$dataKey] = htmlspecialchars($dataElement, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8");
                 }
+            } else {
+                foreach ($this->data as $dataKey => $dataElement) {
+                    $params[$dataKey] = "";
+                }
             }
             return $params;
         }
@@ -131,7 +127,7 @@
     {
         private const ADMIN_EMAIL = "koreshkov200@mail.ru";
         protected $paramRules = array(
-            "name" => ["isEmpty","minLength","isLetter", "isAdmin"],
+            "name" => ["isEmpty","minLength","isLetter"],
             "phoneNumber" => ["isEmpty", "onlyDigits"]
         );
 
@@ -163,8 +159,50 @@
         }
     }
 
+    class DB 
+    {
+        protected static $_instance;
+        private function __construct() 
+        {
+
+        }
+
+        public static function getInstance() 
+        {
+            if (self::$_instance === null) {
+                self::$_instance = new self;
+            }    
+            return self::$_instance;
+        }
+
+        public function dbConnect()
+        {
+            $connectionArgs = parse_ini_file("db_connect.ini");
+            try{
+                $connection = new PDO("mysql:host=".$connectionArgs['host'].";dbname=".
+                $connectionArgs['db_name'], $connectionArgs['user'], $connectionArgs['pass']);
+            }
+            catch (PDOException $e) {
+                echo "Connection failed: " . $e->getMessage();
+            }
+
+            if ($connection) {
+                echo "good";
+            } else {
+                echo "bad";
+            }
+        }
+
+        
+    }
+
     $messages = [];
-    $formData = [];
+    $formData = array(
+        'surname' => '',
+        'name' => '',
+        'phoneNumber' => '',
+        'message' => ''
+    );
     if (isset($_POST['sendButton'])) {
         $form = new FormClass($_POST);
         $messages = $form->isValid();
@@ -188,10 +226,12 @@
         echo($message); 
         }
     } 
+    $db = DB::getInstance();
+    $db->dbConnect();
+
 ?>
 
 <h3>Обратная связь</h3>
-
 <form method="post">
     <h5>Фамилия</h5>
     <input type="text" name="surname" placeholder="Фамилия.." value="<?= $formData["surname"];?>">
