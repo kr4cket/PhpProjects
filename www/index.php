@@ -1,19 +1,17 @@
 <?php
 
-use Validator as GlobalValidator;
-
     class Validator
     {
         protected $paramErrors = [];
+        protected $customRules = [];
         protected static $_instance;
-        protected static $customRules = [];
 
         private function __construct()
         {
-            $this->customRules['onlyDigits'] = [$this, 'onlyDigits'];
-            $this->customRules['isEmpty'] = [$this, 'isEmpty'];
-            $this->customRules['isLetter'] = [$this, 'isLetter'];
-            $this->customRules['minLength'] = [$this, 'minLength'];
+            $parentMethods = array('onlyDigits', 'isEmpty', 'isLetter', 'minLength');
+            foreach($parentMethods as $method) {
+                $this->customRules[$method] = [$this, $method];
+            }
         }
 
         public static function getInstance() 
@@ -28,8 +26,8 @@ use Validator as GlobalValidator;
         {
             foreach ($rules as $rule)
             { 
-                if (array_key_exists( $rule, $this->customRules)) {
-                    $this->paramErrors[] = $this->customRules["$rule"]($validateParam);
+                if (array_key_exists( $rule, $this->customRules) && is_callable($this->customRules["$rule"])) {
+                    $error = $this->customRules["$rule"]($validateParam);
                     if (isset($error)) {
                         $this->paramErrors[] = $error;
                     }
@@ -80,16 +78,17 @@ use Validator as GlobalValidator;
         protected $paramRules = [];
         protected $validateParams = [];
         protected $validator;
-        protected $validator1;
         protected $data;
+        protected $formParameters = [];
         public abstract function isValid();
 
         public function __construct($requestData)
         {
-            $this->validator = Validator::getInstance();
-            $this->validateParams = $this->getNonEmptyParams($requestData);
             $this->data = $requestData;
-            Validator::getInstance()->registerValidator("isAdmin", 
+            $this->validator = Validator::getInstance();
+            $this->validateParams = $this->getNonEmptyParams();
+            $this->formParameters = $this->getFormParams();
+            $this->validator->registerValidator("isAdmin", 
             function($input)
             {
                 if($input != "Admin") {
@@ -98,12 +97,20 @@ use Validator as GlobalValidator;
             });
         }
 
-        private function getNonEmptyParams($data)
+        private function getFormParams(){
+            $params = [];
+            foreach ($this->data as $dataKey => $dataElement) {
+                $params[$dataKey] = htmlspecialchars($dataElement, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, "UTF-8");
+            }
+            return $params;
+        }
+
+        private function getNonEmptyParams()
         {
             $newParamData = [];
             $ruleKeys = array_keys($this->paramRules);
-            foreach ($ruleKeys as &$ruleKey) {
-                $newParamData[$ruleKey] = $data[$ruleKey];
+            foreach ($ruleKeys as $ruleKey) {
+                $newParamData[$ruleKey] = $this->data[$ruleKey];
             }
             return $newParamData;
         }
@@ -113,11 +120,12 @@ use Validator as GlobalValidator;
             foreach ($validateParams as $type => $param) {
                 $this->validator->validate($this->paramRules[$type], $param);
             }
-            if ($this->validator->getErrors()) {
-                return true;
-            } else {
-                return false;
-            }
+            return !empty($this->validator->getErrors());
+        }
+
+        public function getFormData()
+        {
+            return $this->formParameters;
         }
     }
 
@@ -129,13 +137,13 @@ use Validator as GlobalValidator;
             "phoneNumber" => ["isEmpty", "onlyDigits"]
         );
 
-        private function sendMessage($data)
+        private function sendMessage()
         {
-            $userName = $data['name'];
-            $userSurname = $data['surname'];
-            $userPhone = $data['phoneNumber'];
+            $userName = $this->data['name'];
+            $userSurname = $this->data['surname'];
+            $userPhone = $this->data['phoneNumber'];
             
-            $userMessage = base64_encode($data['message']);
+            $userMessage = base64_encode($this->data['message']);
     
             $subject_text = "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone";
             $subject = '=?UTF-8?B?' . base64_encode($subject_text) . '?=';
@@ -150,16 +158,19 @@ use Validator as GlobalValidator;
             if ($this->validation($this->validateParams)) {
                 return $this->validator->getErrors();
             } else {
-                $this->sendMessage($this->data);
+                $this->sendMessage();
+                unset($this->formParameters);
                 return ["Сообщение отправлено, спасибо за отзыв =)"];
             }
         }
     }
 
     $messages = [];
+    $formData = [];
     if (isset($_POST['sendButton'])) {
         $form = new FormClass($_POST);
         $messages = $form->isValid();
+        $formData = $form->getFormData();
     }
 
 ?>
@@ -175,31 +186,30 @@ use Validator as GlobalValidator;
 
 <?php
     if (isset($messages)) {
-        foreach ($messages as &$message) {
-        echo($message);
+        foreach ($messages as $message) {
+        echo($message); 
         }
-    }
+    } 
 ?>
 
 <h3>Обратная связь</h3>
 
 <form method="post">
     <h5>Фамилия</h5>
-    <input type="text" name="surname" placeholder="Фамилия.." value="<?php echo $_POST["surname"]; ?>">
+    <input type="text" name="surname" placeholder="Фамилия.." value="<?php echo $formData["surname"]; ?>">
 	<br>
 	<h5>Имя</h5>
-    <input type="text" name="name" required placeholder="Имя.." value="<?php echo $_POST["name"]; ?>">
+    <input type="text" name="name" required placeholder="Имя.." value="<?php echo $formData["name"]; ?>">
 	<br>
 	<h5>Номер телефона</h5>
-    <input type="text" name="phoneNumber" required placeholder="Номер телефона.." value="<?php echo $_POST["phoneNumber"]; ?>">
+    <input type="text" name="phoneNumber" required placeholder="Номер телефона.." value="<?php echo $formData["phoneNumber"]; ?>">
 	<br>
 	<h5>Отзыв</h5>
-    <input type="text" name="message" placeholder="Отзыв.." value="<?php echo $_POST["message"]; ?>">
+    <input type="text" name="message" placeholder="Отзыв.." value="<?php echo $formData["message"]; ?>">
 	<br>
 	<br>
 	<input type="submit" name="sendButton" value="Отправить">
 </form>
-
 
 </body>
 
