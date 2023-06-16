@@ -79,6 +79,7 @@
         protected $valid = false;
         protected $validator;
         protected $data;
+        protected $db;
         public abstract function isValid();
 
         public function __construct($requestData)
@@ -86,6 +87,7 @@
             $this->data = $requestData;
             $this->validator = Validator::getInstance();
             $this->validateParams = $this->getNonEmptyParams();
+            $this->db = DB::getInstance();
         }
 
 
@@ -125,26 +127,22 @@
 
     class FormClass extends MainForm
     {
-        private const ADMIN_EMAIL = "koreshkov200@mail.ru";
         protected $paramRules = array(
             "name" => ["isEmpty","minLength","isLetter"],
             "phoneNumber" => ["isEmpty", "onlyDigits"]
         );
 
-        private function sendMessage()
+        private function sendReview()
         {
-            $userName = $this->data['name'];
-            $userSurname = $this->data['surname'];
-            $userPhone = $this->data['phoneNumber'];
-            
-            $userMessage = base64_encode($this->data['message']);
+            $insertData = array(
+                'user_name' => $this->data['name'],
+                'user_surname' => $this->data['surname'],
+                'user_phoneNumber' => $this->data['phoneNumber'],
+                'message_type' => $this->data['list'],
+                'user_message' => $this->data['message'],
+            );
+            $this->db->addReview($insertData);
     
-            $subject_text = "Отзыв пользователя $userName $userSurname Контактный телефон: $userPhone";
-            $subject = '=?UTF-8?B?' . base64_encode($subject_text) . '?=';
-            $headers = 'Content-Type: text/plain; charset=utf-8' . "\r\n";
-            $headers .= 'Content-Transfer-Encoding: base64';
-    
-            mail(self::ADMIN_EMAIL, $subject, $userMessage, $headers);
         }
 
         public function isValid()
@@ -152,7 +150,7 @@
             if ($this->validation($this->validateParams)) {
                 return $this->validator->getErrors();
             } else {
-                $this->sendMessage();
+                $this->sendReview();
                 $this->valid = true;
                 return ["Сообщение отправлено, спасибо за отзыв =)"];
             }
@@ -162,9 +160,10 @@
     class DB 
     {
         protected static $_instance;
+        protected $connection;
         private function __construct() 
         {
-
+            $this->dbConnect();
         }
 
         public static function getInstance() 
@@ -175,33 +174,70 @@
             return self::$_instance;
         }
 
-        public function dbConnect()
+        private function dbConnect()
         {
             $connectionArgs = parse_ini_file("db_connect.ini");
-            try{
-                $connection = new PDO("mysql:host=".$connectionArgs['host'].";dbname=".
-                $connectionArgs['db_name'], $connectionArgs['user'], $connectionArgs['pass']);
-            }
-            catch (PDOException $e) {
-                echo "Connection failed: " . $e->getMessage();
-            }
+            $dsn = "mysql:host=".$connectionArgs['host'].";dbname=".$connectionArgs['db_name'].";charset=utf8";
+            $opt = [
+                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES   => false,
+            ];
+            $this->connection = new PDO($dsn, $connectionArgs['user'], $connectionArgs['pass'], $opt);
+            $this->createTables();
+        }
 
-            if ($connection) {
-                echo "good";
-            } else {
-                echo "bad";
+        private function createTables()
+        {
+            $statements = [
+                'CREATE TABLE IF NOT EXISTS themes( 
+                    theme_id   INT AUTO_INCREMENT,
+                    theme_type  VARCHAR(15) NOT NULL,
+                    PRIMARY KEY(theme_id)
+                );',
+                'CREATE TABLE IF NOT EXISTS user_reviews (
+                    user_name   VARCHAR(100) NOT NULL, 
+                    user_surname VARCHAR(100) NOT NULL, 
+                    user_phoneNumber VARCHAR(15) NOT NULL,
+                    message_type VARCHAR(15) NOT NULL,
+                    user_message TEXT
+                )'];
+            foreach ($statements as $statement) {
+                $this->connection->exec($statement);
             }
         }
 
+        public function getSelectData()
+        {
+            $selectNames = $this->connection->query('SELECT theme_type from themes');
+            return $selectNames->fetchAll();
+        }
         
+        public function addReview($userData)
+        {
+            $statement = $this->connection->prepare('INSERT INTO user_reviews 
+            (user_name, user_surname, user_phoneNumber, message_type, user_message) VALUES 
+            (:user_name, :user_surname, :user_phoneNumber, :message_type, :user_message);');
+            $statement->execute( array(
+                'user_name' => $userData['user_name'],
+                'user_surname' => $userData['user_surname'],
+                'user_phoneNumber' => $userData['user_phoneNumber'],
+                'message_type' => $userData['message_type'],
+                'user_message' => $userData['user_message']
+            ));
+
+        }
     }
 
+    $data_base = DB::getInstance();
+    $selectData = $data_base->getSelectData();
     $messages = [];
     $formData = array(
         'surname' => '',
         'name' => '',
         'phoneNumber' => '',
-        'message' => ''
+        'message' => '',
+        'list' => ''
     );
     if (isset($_POST['sendButton'])) {
         $form = new FormClass($_POST);
@@ -226,8 +262,6 @@
         echo($message); 
         }
     } 
-    $db = DB::getInstance();
-    $db->dbConnect();
 
 ?>
 
@@ -241,8 +275,15 @@
 	<br>
 	<h5>Номер телефона</h5>
     <input type="text" name="phoneNumber" required placeholder="Номер телефона.." value="<?= $formData["phoneNumber"];?>">
-	<br>
+    <br>
 	<h5>Отзыв</h5>
+    <select name="list">
+        <?php 
+            foreach ($selectData as $value) {?>
+            <option><?= $value['theme_type'];?></option>
+        <?php }?>
+    </select>
+    <br>
     <input type="text" name="message" placeholder="Отзыв.." value="<?= $formData["message"];?>">
 	<br>
 	<br>
