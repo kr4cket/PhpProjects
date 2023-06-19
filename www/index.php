@@ -84,12 +84,25 @@
 
         public function __construct($requestData)
         {
-            $this->data = $requestData;
+            $this->data = $this->isEmpty($requestData);
             $this->validator = Validator::getInstance();
             $this->validateParams = $this->getNonEmptyParams();
             $this->db = DB::getInstance();
         }
 
+        private function isEmpty($data) 
+        {
+            if (empty($data)){
+                return [
+                    'surname' => '',
+                    'name' => '',
+                    'phoneNumber' => '',
+                    'message' => '',
+                    'list' => ''
+                ];
+            } 
+            return $data;
+        }
 
         private function getNonEmptyParams()
         {
@@ -121,6 +134,7 @@
                     $params[$dataKey] = "";
                 }
             }
+            $params['list'] = $this->db->getSelectData();
             return $params;
         }
     }
@@ -137,8 +151,8 @@
             $insertData = [
                 'user_name' => $this->data['name'],
                 'user_surname' => $this->data['surname'],
-                'user_phoneNumber' => $this->data['phoneNumber'],
-                'message_type' => $this->data['list'],
+                'user_phone_number' => $this->data['phoneNumber'],
+                'theme_id' => $this->data['list'],
                 'user_message' => $this->data['message'],
             ];
             $this->db->addReview($insertData);
@@ -176,8 +190,7 @@
 
         private function dbConnect()
         {
-            $path = realpath('../configs/db_connect.ini');
-            $connectionArgs = parse_ini_file(realpath($path));
+            $connectionArgs = parse_ini_file('../configs/db_connect.ini');
             $dsn = "mysql:host=".$connectionArgs['host'].";dbname=".$connectionArgs['db_name'].";charset=utf8";
             $opt = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -185,64 +198,39 @@
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ];
             $this->connection = new PDO($dsn, $connectionArgs['user'], $connectionArgs['pass'], $opt);
-            $this->createTables();
         }
 
-        private function createTables()
-        {
-            $statements = [
-                'CREATE TABLE IF NOT EXISTS themes( 
-                    theme_id   INT AUTO_INCREMENT,
-                    theme_type  VARCHAR(15) NOT NULL,
-                    PRIMARY KEY(theme_id)
-                );',
-                'CREATE TABLE IF NOT EXISTS user_reviews (
-                    user_name   VARCHAR(100) NOT NULL, 
-                    user_surname VARCHAR(100) NOT NULL, 
-                    user_phoneNumber VARCHAR(15) NOT NULL,
-                    message_type VARCHAR(15) NOT NULL,
-                    user_message TEXT
-                )'];
-            foreach ($statements as $statement) {
-                $this->connection->exec($statement);
-            }
-        }
 
         public function getSelectData()
         {
-            $selectNames = $this->connection->query('SELECT theme_type from themes');
+            $selectNames = $this->connection->query('SELECT * from themes');
             return $selectNames->fetchAll();
         }
         
         public function addReview($userData)
         {
             $statement = $this->connection->prepare('INSERT INTO user_reviews 
-            (user_name, user_surname, user_phoneNumber, message_type, user_message) VALUES 
-            (:user_name, :user_surname, :user_phoneNumber, :message_type, :user_message);');
+            (user_name, user_surname, user_phone_number, theme_id, user_message) VALUES 
+            (:user_name, :user_surname, :user_phone_number, :theme_id, :user_message);');
             $statement->execute( [
                 'user_name' => $userData['user_name'],
                 'user_surname' => $userData['user_surname'],
-                'user_phoneNumber' => $userData['user_phoneNumber'],
-                'message_type' => $userData['message_type'],
+                'user_phone_number' => $userData['user_phone_number'],
+                'theme_id' => $userData['theme_id'],
                 'user_message' => $userData['user_message']
             ]);
 
         }
     }
 
-    $data_base = DB::getInstance();
-    $selectData = $data_base->getSelectData();
+
     $messages = [];
-    $formData = [
-        'surname' => '',
-        'name' => '',
-        'phoneNumber' => '',
-        'message' => '',
-        'list' => ''
-    ];
     if (isset($_POST['sendButton'])) {
         $form = new FormClass($_POST);
         $messages = $form->isValid();
+        $formData = $form->getFormData();
+    } else {
+        $form = new FormClass($_GET);
         $formData = $form->getFormData();
     }
 
@@ -280,8 +268,8 @@
 	<h5>Отзыв</h5>
     <select name="list">
         <?php 
-            foreach ($selectData as $value) {?>
-            <option><?= $value['theme_type'];?></option>
+            foreach ($formData["list"] as $value) {?>
+            <option value=<?= $value['id'];?>><?= $value['theme_type'];?></option>
         <?php }?>
     </select>
     <br>
