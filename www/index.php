@@ -4,11 +4,11 @@
     {
         protected $paramErrors = [];
         protected $customRules = [];
-        protected static $_instance;
+        protected static $instance;
 
         private function __construct()
         {
-            $parentMethods = array('onlyDigits', 'isEmpty', 'isLetter', 'minLength');
+            $parentMethods = ['onlyDigits', 'isEmpty', 'isLetter', 'minLength'];
             foreach($parentMethods as $method) {
                 $this->customRules[$method] = [$this, $method];
             }
@@ -16,10 +16,10 @@
 
         public static function getInstance() 
         {
-            if (self::$_instance === null) {
-                self::$_instance = new self;
+            if (self::$instance === null) {
+                self::$instance = new self;
             }    
-            return self::$_instance;
+            return self::$instance;
         }
 
         public function validate($rules, $validateParam)
@@ -127,20 +127,20 @@
 
     class FormClass extends MainForm
     {
-        protected $paramRules = array(
+        protected $paramRules = [
             "name" => ["isEmpty","minLength","isLetter"],
             "phoneNumber" => ["isEmpty", "onlyDigits"]
-        );
+        ];
 
         private function sendReview()
         {
-            $insertData = array(
+            $insertData = [
                 'user_name' => $this->data['name'],
                 'user_surname' => $this->data['surname'],
                 'user_phoneNumber' => $this->data['phoneNumber'],
                 'message_type' => $this->data['list'],
                 'user_message' => $this->data['message'],
-            );
+            ];
             $this->db->addReview($insertData);
     
         }
@@ -159,7 +159,7 @@
 
     class DB 
     {
-        protected static $_instance;
+        protected static $instance;
         protected $connection;
         private function __construct() 
         {
@@ -168,15 +168,16 @@
 
         public static function getInstance() 
         {
-            if (self::$_instance === null) {
-                self::$_instance = new self;
+            if (self::$instance === null) {
+                self::$instance = new self;
             }    
-            return self::$_instance;
+            return self::$instance;
         }
 
         private function dbConnect()
         {
-            $connectionArgs = parse_ini_file("db_connect.ini");
+            $path = realpath('../configs/db_connect.ini');
+            $connectionArgs = parse_ini_file(realpath($path));
             $dsn = "mysql:host=".$connectionArgs['host'].";dbname=".$connectionArgs['db_name'].";charset=utf8";
             $opt = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -218,13 +219,13 @@
             $statement = $this->connection->prepare('INSERT INTO user_reviews 
             (user_name, user_surname, user_phoneNumber, message_type, user_message) VALUES 
             (:user_name, :user_surname, :user_phoneNumber, :message_type, :user_message);');
-            $statement->execute( array(
+            $statement->execute( [
                 'user_name' => $userData['user_name'],
                 'user_surname' => $userData['user_surname'],
                 'user_phoneNumber' => $userData['user_phoneNumber'],
                 'message_type' => $userData['message_type'],
                 'user_message' => $userData['user_message']
-            ));
+            ]);
 
         }
     }
@@ -232,13 +233,13 @@
     $data_base = DB::getInstance();
     $selectData = $data_base->getSelectData();
     $messages = [];
-    $formData = array(
+    $formData = [
         'surname' => '',
         'name' => '',
         'phoneNumber' => '',
         'message' => '',
         'list' => ''
-    );
+    ];
     if (isset($_POST['sendButton'])) {
         $form = new FormClass($_POST);
         $messages = $form->isValid();
