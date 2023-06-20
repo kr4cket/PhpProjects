@@ -1,0 +1,37 @@
+CREATE TABLE IF NOT EXISTS goods_type (
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	type_name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS goods_manufacture (
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	manufacture_name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS goods (
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	name VARCHAR(255) NOT NULL,
+	type_id INT NOT NULL,
+	manufacture_id INT NOT NULL,
+	price DECIMAL NOT NULL,
+	description TEXT,
+	is_sold_out BOOLEAN DEFAULT FALSE,
+	
+	FOREIGN KEY (type_id) REFERENCES goods_type (id) ON DELETE CASCADE,
+	FOREIGN KEY (manufacture_id) REFERENCES goods_manufacture (id) ON DELETE CASCADE
+	
+	
+);
+
+CREATE TABLE IF NOT EXISTS goods_review (
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	goods_id INT NOT NULL,
+	name VARCHAR (255) NOT NULL,
+	surname VARCHAR (255) NOT NULL,
+	phone_number VARCHAR (255),
+	is_active BOOLEAN DEFAULT TRUE,
+	review TEXT,
+	rating TINYINT NOT NULL,
+	
+	FOREIGN KEY (goods_id) REFERENCES goods (id) ON DELETE CASCADE
+)
