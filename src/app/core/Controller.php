@@ -1,18 +1,16 @@
 <?php 
-    namespace App\Core;
-    use App\Core\View;
+namespace App\Core;
+use App\Core\View;
 
-    class Controller
+class Controller
+{
+    protected $view;
+
+    public function __construct()
     {
-        protected $view;
-
-        public function __construct()
-        {
-            $this->view = new View();
-        }
-
-
+        $this->view = new View();
     }
 
 
+}
 ?>

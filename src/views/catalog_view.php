@@ -12,9 +12,9 @@
 <table>
     <?foreach ($goods as $good => $parameter) {?>
     <tr>
-        <td><? echo $parameter['name'] ?></td>
-        <td><? echo $parameter['price'] ?></td>
-        <td> <input type='button' value="Подробнее" name=<? $parameter['id']?>></td>
+        <td><?= $parameter['name'] ?></td>
+        <td><?= $parameter['price'] ?></td>
+        <td><a href="/goods/<?=$parameter['id']?>">Подробнее</a></td>
     </tr>
     <?}?>
 </table>

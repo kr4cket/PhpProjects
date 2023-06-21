@@ -1,16 +1,16 @@
 <?php 
-    namespace App\Core;
+namespace App\Core;
 
-    class View 
+class View 
+{
+    public function __construct()
     {
-        public function __construct()
-        {
 
-        }
-
-        public function generate($content, $data)
-        {
-            include ROOT.'/../src/App/Views/'.$content.'_view.php';
-        }
     }
+
+    public function generate($content, $data)
+    {
+        include VIEW_PATH.$content.'_view.php';
+    }
+}
 ?>

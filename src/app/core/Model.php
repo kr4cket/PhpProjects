@@ -1,17 +1,14 @@
 <?php 
-    namespace App\Core;
-    use \App\Core\DataBaseConnection;
+namespace App\Core;
+use \App\Core\DataBaseConnection;
 
-    class Model 
+class Model 
+{
+    protected $model;
+
+    public function __construct()
     {
-        protected $db;
-
-        public function __construct()
-        {
-            $this->db = DataBaseConnection::getInstance()->getConnection();
-        }
-
-
+        $this->model = DataBaseConnection::getInstance()->getConnection();
     }
-
+}
 ?>

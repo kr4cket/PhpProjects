@@ -1,33 +1,33 @@
 <?php 
-    namespace App\Controllers;
-    use App\Models\GoodsModel;
-    use App\Core\Controller;
+namespace App\Controllers;
+use App\Models\GoodsModel;
+use App\Core\Controller;
 
-    class GoodsController extends Controller
+class GoodsController extends Controller
+{
+    private $model;
+    public function __construct()
     {
-        private $db;
-        public function __construct()
-        {
-            parent::__construct();
-            $this->db = new GoodsModel();
-        }
-
-        public function show($productId)
-        {
-            $data = $this->db->getGoodData($productId[0]);
-            if(empty($data)) {
-                $this->view->generate('not_found', $data);
-                return;
-            }
-            $this->view->generate('goods', $data);
-        }
-
-        public function add() 
-        {
-            print_r('adding new good');
-            return $this->db->getDefaultPage(1,6);
-        }
+        parent::__construct();
+        $this->model = new GoodsModel();
     }
 
+    public function show($productId)
+    {
+        $data = $this->model->getGoodData($productId);
+        if($data) {
+            $this->view->generate('goods', $data);
+            return;
+        }
+        $this->view->generate('not_found', "с товаром");
+        return;
+    }
+
+    public function add() 
+    {
+        print_r('adding new good');
+        return $this->model->getDefaultPage(1,6);
+    }
+}
 
 ?>
