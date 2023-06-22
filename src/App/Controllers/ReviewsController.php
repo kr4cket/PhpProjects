@@ -1,20 +1,52 @@
 <?php 
 namespace App\Controllers;
+use App\Core\Controller;
+use App\Models\GoodsModel;
 use App\Models\GoodsReviewModel;
 
-class ReviewsController
+class ReviewsController extends Controller
 {
-    private $db;
+    private $model;
+    private $goodsModel;
+
     public function __construct()
     {
-        $this->db = new GoodsReviewModel();
-        echo "REVIEW";
+        parent::__construct();
+        $this->model = new GoodsReviewModel();
+        $this->goodsModel = new GoodsModel();
     }
 
-    public function add() 
+    public function add($productId) 
+    {        
+        $postData = $_POST;
+        if (!$this->goodsModel->existProductId($productId)) {
+            $this->view->render("not_found", 'c товаром');
+            return;
+        }
+
+        if (empty($postData)) {
+            $data = $this->model->getEmptyFormData($productId);
+            $this->view->render("add_review", $data);
+            return;
+        }
+        $this->validate($postData, $productId);
+    }
+
+    private function validate($postData, $productId) 
     {
-        print_r('adding new review');
-        return $this->db->getDefaultPage(1,6);
+        $postData['id'] = $productId;
+        if ($this->model->isValid($postData)) {
+            $this->model->addGoodData($postData);
+            $this->view->render('success_review');
+            return;
+        }
+        $data = $this->model->getFormData($postData);
+        $this->view->render('add_review', $data);
+    }
+
+    public function getData() 
+    {
+        
     }
 }
 ?>

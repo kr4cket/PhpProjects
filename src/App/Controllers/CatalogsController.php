@@ -13,12 +13,15 @@ class CatalogsController extends Controller
         $this->model = new GoodsModel();
     }
 
-    public function index()
+    public function index($page=1, $orderType='default')
     {
-        $data = $this->model->getDefaultPage(1,6);
-        $this->view->generate('catalog', $data);
+        if ($this->model->existPage($page)) {
+            $data = $this->model->getPage($page, $orderType);
+            $this->view->render('catalog', $data);
+        } else {
+            $this->view->render('not_found', 'товаров');
+        }
     }
-
 }
 
 ?>

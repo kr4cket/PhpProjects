@@ -11,5 +11,12 @@ class GoodsManufactureModel extends Model
         return $data->fetch()['manufacture_name'];
     }
 
+    public function getData()
+    {
+        $data = $this->model->prepare("SELECT * FROM goods_manufacture");
+        $data->execute();
+        return $data->fetchAll();
+    }
+
 }
 ?>

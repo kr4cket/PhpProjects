@@ -11,6 +11,5 @@ class Controller
         $this->view = new View();
     }
 
-
 }
 ?>

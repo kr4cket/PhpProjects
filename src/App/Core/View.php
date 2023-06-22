@@ -8,7 +8,7 @@ class View
 
     }
 
-    public function generate($content, $data)
+    public function render($content, $data = [])
     {
         include VIEW_PATH.$content.'_view.php';
     }

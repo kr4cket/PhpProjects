@@ -1,5 +1,7 @@
 <?php 
 namespace App\Core;
+
+use Exception;
 use \PDO;
 
 class DataBaseConnection
@@ -31,7 +33,9 @@ class DataBaseConnection
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ];
             $this->connection = new PDO($dsn, $connectionArgs['user'], $connectionArgs['pass'], $opt);
-        } 
+        } else {
+            throw new Exception('Создай файл конфига БД');
+        }
     }
 
     public function getConnection()

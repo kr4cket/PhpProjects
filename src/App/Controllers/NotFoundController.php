@@ -7,7 +7,7 @@ class NotFoundController extends Controller
 
     public function index($data)
     {
-        $this->view->generate('not_found', $data);
+        $this->view->render('not_found', $data);
     }
 
 
