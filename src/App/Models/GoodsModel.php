@@ -24,7 +24,8 @@ class GoodsModel extends Model
         'orderByPriceDownToUp' => 'price',
         'orderByPriceUpToDown' => 'price DESC'
     ];
-    public const PAGE_SIZE = 5;
+
+    const PAGE_SIZE = 5;
 
     public function __construct()
     {
@@ -40,7 +41,8 @@ class GoodsModel extends Model
         $order = $this->getOrderType($orderType);
         $pageData = $this->model->prepare("SELECT * FROM goods ORDER BY $order LIMIT :page, :limit");
         $pageData->execute(['page' => $page, 'limit' => $limit]);
-        return $pageData->fetchAll();
+        $pageData = [$pageData->fetchAll(), $this->getPageCount(), $page, $orderType];
+        return $pageData;
     }
 
     private function getOrderType($type)
@@ -58,7 +60,7 @@ class GoodsModel extends Model
 
     public function addGoodData($data)
     {
-        $goodData = $this->model->prepare("INSERT INTO goods (id, name, type_id, manufacture_id, price, description, is_sold_out) 
+        $goodData = $this->model->prepare("INSERT INTO goods (id, name, type_id, manufacture_id, price, description, is_sold_out)
         VALUES (:id ,:name, :type_id, :manufacture_id, :price, :description, :is_sold_out);");
         $goodData->execute([
             'id' => null,
@@ -93,23 +95,22 @@ class GoodsModel extends Model
         return empty($this->validator->getErrors());
     }
 
-    public function getEmptyFormData()
+    public function getFormData($postData=null)
     {
+        if (!$postData) {
+            return [
+                'goodName' => '',
+                'goodCost' => '',
+                'goodDescription' => '',
+                'typeList' => $this->type->getData(),
+                'manufactureList' => $this->manufacture->getData(),
+                'errors' => []
+            ];
+        }
         return [
-            'goodName' => '',
-            'goodCost' => '',
-            'goodDescription' => '',
-            'typeList' => $this->type->getData(),
-            'manufactureList' => $this->manufacture->getData(),
-            'errors' => []
-        ];
-    }
-    public function getFormData($postData)
-    {
-        return [
-            'goodName' => $postData['goodName'],
-            'goodCost' => $postData['goodCost'],
-            'goodDescription' => $postData['goodDescription'],
+            'goodName' => $postData['goodName'] ??= '',
+            'goodCost' => $postData['goodCost'] ??= '',
+            'goodDescription' => $postData['goodDescription'] ??= '',
             'typeList' => $this->type->getData(),
             'manufactureList' => $this->manufacture->getData(),
             'errors' => $this->validator->getErrors()
@@ -124,13 +125,17 @@ class GoodsModel extends Model
     }
     public function existPage($pageNumber)
     {
-        $elementsNumber = $this->getElementsNumber();
-        return (static::PAGE_SIZE * $pageNumber < $elementsNumber);
+        $elementsNumber = $this->getElementsCount();
+        return (static::PAGE_SIZE * $pageNumber < $elementsNumber + static::PAGE_SIZE);
     }
 
-    private function getElementsNumber()
+    private function getElementsCount()
     {
         $number = $this->model->query("SELECT COUNT(*) FROM goods");
         return $number->fetch()['COUNT(*)'];
+    }
+    private function getPageCount()
+    {
+        return ceil($this->getElementsCount()/static::PAGE_SIZE);
     }
 }

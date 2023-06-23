@@ -1,9 +1,10 @@
-<?php 
+<?php
 namespace App\Controllers;
 use App\Models\GoodsModel;
 use App\Models\GoodsManufactureModel;
 use App\Models\GoodsTypeModel;
 use App\Core\Controller;
+use App\Views\HtmlView;
 
 class GoodsController extends Controller
 {
@@ -21,37 +22,38 @@ class GoodsController extends Controller
 
     public function show($productId)
     {
-        $data = $this->model->getGoodData($productId);
-        if($data) {
-            $this->view->render('goods', $data);
-            return;
+        $this->data = $this->model->getGoodData($productId);
+        if($this->data) {
+            $this->content = 'goods';
+        } else {
+            $this->content = 'not_found';
+            $this->data = 'с товаром';
         }
-        $this->view->render('not_found', "с товаром");
-        return;
+
+        return new HtmlView($this->content, $this->data);
     }
 
-    public function add() 
+    public function add()
     {
         $postData = $_POST;
         if (empty($postData)) {
-            $data = $this->model->getEmptyFormData();
-            $this->view->render('add_goods', $data);
-            return;
-        } 
-        $this->validate($postData);
+            $this->data = $this->model->getFormData();
+            $this->content = 'add_goods';
+        } else {
+
+            if ($this->model->isValid($postData)) {
+                $this->model->addGoodData($postData);
+                $this->data = $postData['goodName'];
+                $this->content = 'success';
+            }
+            else {
+                $this->data = $this->model->getFormData($postData);
+                $this->content = 'add_goods';
+            }
+        }
+
+        return new HtmlView($this->content, $this->data);
     }
 
-    private function validate($postData) 
-    {
-        if ($this->model->isValid($postData)) {
-            $this->model->addGoodData($postData);
-            $this->view->render('success', $postData['goodName']);
-            return;
-        }
-        $data = $this->model->getFormData($postData);
-        $this->view->render('add_goods', $data);
-    }
 
 }
-
-?>

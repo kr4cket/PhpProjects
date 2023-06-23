@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace App\Core;
 
 use Exception;
@@ -14,15 +14,15 @@ class DataBaseConnection
         $this->dbConnect();
     }
 
-    public static function getInstance() 
+    public static function getInstance()
     {
         if (self::$instance === null) {
             self::$instance = new self;
-        }    
+        }
         return self::$instance;
     }
 
-    private function dbConnect() 
+    private function dbConnect()
     {
         if (file_exists(CONFIG_PATH.'db_connect.ini')) {
             $connectionArgs = parse_ini_file(CONFIG_PATH.'db_connect.ini');
@@ -43,4 +43,3 @@ class DataBaseConnection
         return $this->connection;
     }
 }
-?>

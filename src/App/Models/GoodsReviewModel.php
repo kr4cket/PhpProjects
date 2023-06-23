@@ -1,8 +1,8 @@
-<?php 
+<?php
 namespace App\Models;
 use \App\Core\Model;
 
-class GoodsReviewModel extends Model 
+class GoodsReviewModel extends Model
 {
     private $paramRules = [
         'name' => ['isEmpty', 'minLength', 'isLetter'],
@@ -11,27 +11,24 @@ class GoodsReviewModel extends Model
         'rating' => ['isChecked']
     ];
 
-    public function getEmptyFormData($id)
+    public function getFormData($postData=[])
     {
+        if (!$postData) {
+            return [
+                'name' => '',
+                'surname' => '',
+                'phoneNumber' => '',
+                'review' => '',
+                'rating' => -1,
+                'errors' => []
+            ];
+        }
         return [
-            'id' => $id,
-            'name' => '',
-            'surname' => '',
-            'phoneNumber' => '',
-            'review' => '',
-            'rating' => -1,
-            'errors' => []
-        ];
-    }
-
-    public function getFormData($postData) 
-    {
-        return [
-            'id' => $postData['id'],
-            'name' => $postData['name'],
-            'surname' => $postData['surname'],
-            'phoneNumber' => $postData['phoneNumber'],
-            'review' => $postData['review'],
+            'id' => $postData['id'] ??= '',
+            'name' => $postData['name'] ??= '',
+            'surname' => $postData['surname'] ??= '',
+            'phoneNumber' => $postData['phoneNumber'] ??= '',
+            'review' => $postData['review'] ??= '',
             'rating' => $this->getRadio($postData),
             'errors' => $this->validator->getErrors()
         ];
@@ -46,7 +43,7 @@ class GoodsReviewModel extends Model
     }
 
     public function addGoodData($data) {
-        $goodData = $this->model->prepare("INSERT INTO goods_review (id, goods_id, name, surname, phone_number, is_active, review, rating) 
+        $goodData = $this->model->prepare("INSERT INTO goods_review (id, goods_id, name, surname, phone_number, is_active, review, rating)
         VALUES (:id, :goods_id ,:name, :surname, :phone_number, :is_active, :review, :rating);");
         $goodData->execute([
             'id' => null,
@@ -60,7 +57,7 @@ class GoodsReviewModel extends Model
         ]);
     }
 
-    public function isValid($validateData) 
+    public function isValid($validateData)
     {
         $validateData['rating'] = $this->getRadio($validateData);
         foreach ($validateData as $type => $param) {
@@ -71,4 +68,3 @@ class GoodsReviewModel extends Model
         return empty($this->validator->getErrors());
     }
 }
-?>

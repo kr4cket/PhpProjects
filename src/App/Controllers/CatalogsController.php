@@ -1,7 +1,8 @@
-<?php 
+<?php
 namespace App\Controllers;
 use App\Models\GoodsModel;
 use App\Core\Controller;
+use App\Views\HtmlView;
 
 class CatalogsController extends Controller
 {
@@ -16,12 +17,12 @@ class CatalogsController extends Controller
     public function index($page=1, $orderType='default')
     {
         if ($this->model->existPage($page)) {
-            $data = $this->model->getPage($page, $orderType);
-            $this->view->render('catalog', $data);
+            $this->data = $this->model->getPage($page, $orderType);
+            $this->content = 'catalog';
         } else {
-            $this->view->render('not_found', 'товаров');
+            $this->data = 'с товаром';
+            $this->content = 'not_found';
         }
+        return new HtmlView($this->content, $this->data);
     }
 }
-
-?>

@@ -1,6 +1,6 @@
 <?php
     namespace App\Core;
-    
+
     class Validator
     {
         protected $paramErrors = [];
@@ -15,18 +15,18 @@
             }
         }
 
-        public static function getInstance() 
+        public static function getInstance()
         {
             if (self::$instance === null) {
                 self::$instance = new self;
-            }    
+            }
             return self::$instance;
         }
 
         public function validate($rules, $validateParam)
         {
             foreach ($rules as $rule)
-            { 
+            {
                 if (array_key_exists( $rule, $this->customRules) && is_callable($this->customRules["$rule"])) {
                     $error = $this->customRules["$rule"]($validateParam);
                     if (isset($error)) {
@@ -92,4 +92,3 @@
             }
         }
     }
-?>

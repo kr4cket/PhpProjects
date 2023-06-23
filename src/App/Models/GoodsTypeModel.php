@@ -1,8 +1,8 @@
-<?php 
+<?php
 namespace App\Models;
 use \App\Core\Model;
 
-class GoodsTypeModel extends Model 
+class GoodsTypeModel extends Model
 {
     public function getTypeById($id)
     {
@@ -19,4 +19,3 @@ class GoodsTypeModel extends Model
     }
 
 }
-?>

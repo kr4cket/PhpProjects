@@ -1,8 +1,9 @@
-<?php 
+<?php
 namespace App\Controllers;
 use App\Core\Controller;
 use App\Models\GoodsModel;
 use App\Models\GoodsReviewModel;
+use App\Views\HtmlView;
 
 class ReviewsController extends Controller
 {
@@ -16,37 +17,34 @@ class ReviewsController extends Controller
         $this->goodsModel = new GoodsModel();
     }
 
-    public function add($productId) 
-    {        
+    public function add($productId)
+    {
         $postData = $_POST;
+
         if (!$this->goodsModel->existProductId($productId)) {
-            $this->view->render("not_found", 'c товаром');
-            return;
+            $this->content = 'not_found';
+            $this->data = 'с товаром';
+            return new HtmlView($this->content, $this->data);
         }
 
-        if (empty($postData)) {
-            $data = $this->model->getEmptyFormData($productId);
-            $this->view->render("add_review", $data);
-            return;
-        }
-        $this->validate($postData, $productId);
+        if (!empty($postData)) {
+            $postData['id'] = $productId;
+            if ($this->model->isValid($postData)) {
+                $this->model->addGoodData($postData);
+                $this->content = 'success_review';
+                return new HtmlView($this->content, $this->data);
+            }
+        } 
+
+        $this->data = $this->model->getFormData($postData);
+        $this->content = 'add_review';
+        return new HtmlView($this->content, $this->data);
+
     }
 
-    private function validate($postData, $productId) 
-    {
-        $postData['id'] = $productId;
-        if ($this->model->isValid($postData)) {
-            $this->model->addGoodData($postData);
-            $this->view->render('success_review');
-            return;
-        }
-        $data = $this->model->getFormData($postData);
-        $this->view->render('add_review', $data);
-    }
 
-    public function getData() 
+    public function getReviewsById()
     {
-        
+
     }
 }
-?>

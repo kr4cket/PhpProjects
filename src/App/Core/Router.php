@@ -1,7 +1,7 @@
 <?php
     namespace App\Core;
 
-    class Router 
+    class Router
     {
         private $routes;
 
@@ -23,14 +23,21 @@
                 if ($pattern == $uriPath) {
                     $controller = new $route[0]();
                     $action = $route[1];
-                    $controller->$action(...$uriParams);
+                } else if (preg_match("~^$pattern\$~", $uriPath)) {
+                    $uriParams = array_slice(explode('/', $uriPath),2);
+                    $controller = new $route[0]();
+                    $action = $route[1];
+                }
+                
+                if (isset($controller)) {
+                    $page = $controller->$action(...$uriParams);
+                    $page->render();
                     return;
                 }
             }
             $controller = new \App\Controllers\NotFoundController();
-            $controller->index($uri);
-            return;
+            $page = $controller->index($uri);
+            $page->render();
         }
     }
 
-?>

@@ -1,16 +1,13 @@
-<?php 
+<?php
 namespace App\Core;
 
-class View 
+class View
 {
-    public function __construct()
+    protected $content;
+    protected $data;
+
+    public function render()
     {
 
-    }
-
-    public function render($content, $data = [])
-    {
-        include VIEW_PATH.$content.'_view.php';
     }
 }
-?>

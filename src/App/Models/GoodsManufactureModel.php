@@ -1,8 +1,8 @@
-<?php 
+<?php
 namespace App\Models;
 use \App\Core\Model;
 
-class GoodsManufactureModel extends Model 
+class GoodsManufactureModel extends Model
 {
     public function getManufactureById($id)
     {
@@ -19,4 +19,3 @@ class GoodsManufactureModel extends Model
     }
 
 }
-?>
