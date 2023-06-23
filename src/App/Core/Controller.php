@@ -4,9 +4,8 @@ use App\Core\View;
 
 class Controller
 {
-    protected $view;
     protected $data;
-    protected $content;
+    protected $template;
 
     public function __construct()
     {

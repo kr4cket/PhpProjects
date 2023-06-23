@@ -1,5 +1,3 @@
-<title>Добавить новый товар</title>
-
 <? 
     if (isset($data['errors'])) {
         foreach ($data['errors'] as $error) { ?>

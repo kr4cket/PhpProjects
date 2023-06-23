@@ -1,6 +1,3 @@
-
-<title><?=($data['name'])?></title>
-
 <h1><?=($data['type'].' '.$data['manufacture'].' '.$data['name']);?></h1>
 <br>
 <h2><?=($data['price'])?> рублей</h2>

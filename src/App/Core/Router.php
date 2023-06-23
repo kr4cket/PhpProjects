@@ -28,16 +28,16 @@
                     $controller = new $route[0]();
                     $action = $route[1];
                 }
-                
+
                 if (isset($controller)) {
-                    $page = $controller->$action(...$uriParams);
-                    $page->render();
+                    $view = $controller->$action(...$uriParams);
+                    $view->render();
                     return;
                 }
             }
             $controller = new \App\Controllers\NotFoundController();
-            $page = $controller->index($uri);
-            $page->render();
+            $view = $controller->index($uri);
+            $view->render();
         }
     }
 

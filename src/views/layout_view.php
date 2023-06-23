@@ -2,13 +2,14 @@
 <html>
 <head>
 <meta charset="utf-8">
+<title><?=$templateData['head']?></title>
 </head>
 <body>
     <header>
         <a href="/">На главную</a>
         <a href=/goods>Добавить товар</a>
     </header>
-        <? include VIEW_PATH.$content.'_view.php'; ?>
+        <?=$templateData['body'];?>
     <footer>
         <p>ООО "Магазин", все права защищены</p>
     </footer>

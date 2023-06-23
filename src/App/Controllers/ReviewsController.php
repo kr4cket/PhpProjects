@@ -22,23 +22,23 @@ class ReviewsController extends Controller
         $postData = $_POST;
 
         if (!$this->goodsModel->existProductId($productId)) {
-            $this->content = 'not_found';
+            $this->template = ['not_found', 'Ошибка'];
             $this->data = 'с товаром';
-            return new HtmlView($this->content, $this->data);
+            return new HtmlView($this->template, $this->data);
         }
 
         if (!empty($postData)) {
             $postData['id'] = $productId;
             if ($this->model->isValid($postData)) {
                 $this->model->addGoodData($postData);
-                $this->content = 'success_review';
-                return new HtmlView($this->content, $this->data);
+                $this->template = ['success_review', 'Успех'];
+                return new HtmlView($this->template, $this->data);
             }
         } 
 
         $this->data = $this->model->getFormData($postData);
-        $this->content = 'add_review';
-        return new HtmlView($this->content, $this->data);
+        $this->template = ['add_review','Добавить отзыв'];
+        return new HtmlView($this->template, $this->data);
 
     }
 

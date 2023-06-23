@@ -1,6 +1,3 @@
-<title>Добавить отзыв</title>
-
-
 <? if (isset($data['errors'])) {
         foreach ($data['errors'] as $error) { ?>
         <h3><?=$error?></h3>

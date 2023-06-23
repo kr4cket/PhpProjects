@@ -24,11 +24,11 @@ class GoodsReviewModel extends Model
             ];
         }
         return [
-            'id' => $postData['id'] ??= '',
-            'name' => $postData['name'] ??= '',
-            'surname' => $postData['surname'] ??= '',
-            'phoneNumber' => $postData['phoneNumber'] ??= '',
-            'review' => $postData['review'] ??= '',
+            'id' => $postData['id'] ?? '',
+            'name' => $postData['name'] ?? '',
+            'surname' => $postData['surname'] ?? '',
+            'phoneNumber' => $postData['phoneNumber'] ?? '',
+            'review' => $postData['review'] ?? '',
             'rating' => $this->getRadio($postData),
             'errors' => $this->validator->getErrors()
         ];

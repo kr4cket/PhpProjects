@@ -108,9 +108,9 @@ class GoodsModel extends Model
             ];
         }
         return [
-            'goodName' => $postData['goodName'] ??= '',
-            'goodCost' => $postData['goodCost'] ??= '',
-            'goodDescription' => $postData['goodDescription'] ??= '',
+            'goodName' => $postData['goodName'] ?? '',
+            'goodCost' => $postData['goodCost'] ?? '',
+            'goodDescription' => $postData['goodDescription'] ?? '',
             'typeList' => $this->type->getData(),
             'manufactureList' => $this->manufacture->getData(),
             'errors' => $this->validator->getErrors()

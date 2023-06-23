@@ -1,36 +1,8 @@
 <?php
+    use App\Views\Paginator;
     $goods = $data[0];
-    $pageCount = $data[1];
-    $page = $data[2];
-    $order = $data[3];
-
-    if ($order != 'id') {
-        $order="&orderType=$order";
-    } else {
-        $order = '';
-    }
-
-    function pagination($page, $pageCount) 
-    {
-        if ($pageCount < 5){
-            $pageArray = [];
-            for ($i = 1; $i <= $pageCount; $i++) {
-                $pageArray[] = $i;
-            }
-            return $pageArray;
-        }
-        if ($page - 2 > 1 && $page+2 < $pageCount) {
-            return [1, '...', $page - 2, $page - 1, $page, $page + 1, $page + 2, '...', $pageCount];
-        }
-        if ($page - 2 > 1 && $page+2 < $pageCount) {
-            return [1, '...', $pageCount - 2, $pageCount - 1, $pageCount];
-        }
-        if ($page + 2 < $pageCount) {
-            return [1, 2, 3, '...', $pageCount];
-        }
-    }
+    $paginator = new Paginator(...array_slice($data,1));
 ?>
-<title>Интернет магазин</title>
 <form>
     <select name="orderType">
         <option value="">Сортировка</option>
@@ -52,16 +24,4 @@
     <?}?>
 </table>
 
-<?
-    $pages = pagination($page, $pageCount);
-?>
-<p><?
-    foreach ($pages as $pageIndex) {
-        if ($pageIndex == '...') {
-            continue;
-        } else { ?>
-    <a href="/?page=<?=$pageIndex.$order?>"><?=$pageIndex?></a>
-<?    }
-    }
-?>
-</p>
+<p><?=$paginator->render()?></p>

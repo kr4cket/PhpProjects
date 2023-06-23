@@ -18,11 +18,11 @@ class CatalogsController extends Controller
     {
         if ($this->model->existPage($page)) {
             $this->data = $this->model->getPage($page, $orderType);
-            $this->content = 'catalog';
+            $this->template = ['catalog', 'Каталог товаров'];
         } else {
             $this->data = 'с товаром';
-            $this->content = 'not_found';
+            $this->template = ['not_found', 'Ошибка'];
         }
-        return new HtmlView($this->content, $this->data);
+        return new HtmlView($this->template, $this->data);
     }
 }

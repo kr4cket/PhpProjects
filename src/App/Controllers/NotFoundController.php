@@ -7,8 +7,8 @@ class NotFoundController extends Controller
 {
     public function index($data)
     {
-        $this->content = 'not_found';
-        return new HtmlView($this->content ,$data);
+        $this->template = ['not_found', 'Ошибка'];
+        return new HtmlView($this->template ,$data);
     }
 
 }
