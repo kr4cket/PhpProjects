@@ -1,12 +1,14 @@
-<?php 
+<?php
+
 namespace App\Models;
+
 use \App\Core\Model;
 use App\Core\Validator;
 use \App\Models\GoodsReviewModel;
 use \App\Models\GoodsTypeModel;
 use \App\Models\GoodsManufactureModel;
 
-class GoodsModel extends Model 
+class GoodsModel extends Model
 {
     private $type;
     private $manufacture;
@@ -19,7 +21,8 @@ class GoodsModel extends Model
     private $orderTypes = [
         'default' => 'id',
         'orderByName' => 'name',
-        'orderByPrice' => 'price'
+        'orderByPriceDownToUp' => 'price',
+        'orderByPriceUpToDown' => 'price DESC'
     ];
     public const PAGE_SIZE = 5;
 
@@ -30,34 +33,31 @@ class GoodsModel extends Model
         $this->manufacture = new GoodsManufactureModel();
     }
 
-    public function getPage($page=1, $orderType='default')
+    public function getPage($page = 1, $orderType = 'default')
     {
         $limit = static::PAGE_SIZE;
-        $page = ($page-1)*$limit;
+        $page = ($page - 1) * $limit;
         $order = $this->getOrderType($orderType);
-        //print_r($order);
-        $pageData = $this->model->prepare("SELECT * FROM goods LIMIT :page, :limit");
-        $pageData->execute(['page'=>$page, 'limit'=>$limit]);
+        $pageData = $this->model->prepare("SELECT * FROM goods ORDER BY $order LIMIT :page, :limit");
+        $pageData->execute(['page' => $page, 'limit' => $limit]);
         return $pageData->fetchAll();
     }
 
     private function getOrderType($type)
     {
-        if (array_key_exists($type, $this->orderTypes)) {
-            return $this->orderTypes[$type];
-        }
-        return 'id';
+        return $this->orderTypes[$type] ?? 'id';
     }
 
     public function getGoodData($id)
     {
         $goodData = $this->model->prepare("SELECT * FROM goods WHERE id=:id");
-        $goodData->execute(['id'=> $id]);
+        $goodData->execute(['id' => $id]);
         $goodData = $this->modifyData($goodData->fetch());
         return $goodData;
     }
 
-    public function addGoodData($data) {
+    public function addGoodData($data)
+    {
         $goodData = $this->model->prepare("INSERT INTO goods (id, name, type_id, manufacture_id, price, description, is_sold_out) 
         VALUES (:id ,:name, :type_id, :manufacture_id, :price, :description, :is_sold_out);");
         $goodData->execute([
@@ -76,14 +76,14 @@ class GoodsModel extends Model
         if ($data) {
             $data['type'] = $this->type->getTypeById($data['type_id']);
             $data['manufacture'] = $this->manufacture->getManufactureById($data['manufacture_id']);
-            unset( $data['manufacture_id'],  $data['type_id']);
-        }else {
+            unset($data['manufacture_id'],  $data['type_id']);
+        } else {
             $data = [];
         }
         return $data;
     }
 
-    public function isValid($validateData) 
+    public function isValid($validateData)
     {
         foreach ($validateData as $type => $param) {
             if (array_key_exists($type, $this->paramRules)) {
@@ -122,7 +122,7 @@ class GoodsModel extends Model
         $checkData->execute(['id' => $id]);
         return !empty($checkData->fetchAll());
     }
-    public function existPage($pageNumber) 
+    public function existPage($pageNumber)
     {
         $elementsNumber = $this->getElementsNumber();
         return (static::PAGE_SIZE * $pageNumber < $elementsNumber);
@@ -134,5 +134,3 @@ class GoodsModel extends Model
         return $number->fetch()['COUNT(*)'];
     }
 }
-
-?>

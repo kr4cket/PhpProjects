@@ -21,6 +21,6 @@
     <?}?>
     <br>
     <h1>Отзывы</h1>
-    <a href=<?="/review/".$data['id']?>>Добавить отзыв</a>
+    <a href=<?="/review?productId=".$data['id']?>>Добавить отзыв</a>
 </body>
 </html>
