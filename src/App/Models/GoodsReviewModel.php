@@ -67,4 +67,11 @@ class GoodsReviewModel extends Model
         }
         return empty($this->validator->getErrors());
     }
+
+    public function getReviews($productId) 
+    {
+        $reviewData = $this->model->prepare("SELECT * FROM goods_review WHERE goods_id=:id");
+        $reviewData->execute(['id'=>$productId]);
+        return $reviewData->fetchAll();
+    }
 }

@@ -23,14 +23,14 @@ class Paginator
     public function render()
     {
         $pages = $this->createPageList();
-        $content = "";
+        $content = [];
         foreach ($pages as $page) {
             if ($page == '...') {
                 continue;
             }
-            $content.= "<a href="."/?page=".$this->pageIndex.$this->orderType."><?=$this->pageIndex?></a>";
+            $content[] = html_entity_decode("<a href="."/?page=".$page.$this->orderType.">$page</a>");
         }
-        return $content;
+        return implode(" ", $content);
     }
 
     private function createPageList() {

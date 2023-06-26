@@ -7,7 +7,7 @@
     <select name="orderType">
         <option value="">Сортировка</option>
         <option value="orderByName">По имени</option>
-        <option value="">По отзывам</option>
+        <option value="orderByReviews">По отзывам</option>
         <option value="orderByPriceDownToUp">По увеличению цены</option>
         <option value="orderByPriceUpToDown">По уменьшению цены</option>
     </select>
@@ -25,3 +25,4 @@
 </table>
 
 <p><?=$paginator->render()?></p>
+

@@ -4,6 +4,7 @@ use App\Models\GoodsModel;
 use App\Models\GoodsManufactureModel;
 use App\Models\GoodsTypeModel;
 use App\Core\Controller;
+use App\Models\GoodsReviewModel;
 use App\Views\HtmlView;
 
 class GoodsController extends Controller
@@ -11,6 +12,7 @@ class GoodsController extends Controller
     private $model;
     private $type;
     private $manufacture;
+    private $reviews;
 
     public function __construct()
     {
@@ -18,12 +20,14 @@ class GoodsController extends Controller
         $this->model = new GoodsModel();
         $this->type = new GoodsTypeModel();
         $this->manufacture = new GoodsManufactureModel();
+        $this->reviews = new GoodsReviewModel();
     }
 
     public function show($productId)
     {
         $this->data = $this->model->getGoodData($productId);
         if($this->data) {
+            $this->data['reviews'] = $this->prepareReview($this->reviews->getReviews($productId));
             $this->template = ['goods', $this->data['name']];
         } else {
             $this->template = 'not_found';
@@ -55,5 +59,19 @@ class GoodsController extends Controller
         return new HtmlView($this->template, $this->data);
     }
 
-
+    private function prepareReview($data) 
+    {
+        $content = [];
+        foreach($data as $review){
+            $content[] = html_entity_decode('
+            <div>
+                <p>'.$review['name'].' '.$review['surname'].'</p>
+                <p>'.$review['phone_number'].'</p>
+                <p>Оценка: '.$review['rating'].'</p>
+                <p>'.$review['review'].'</p>
+            </div>
+            <br>');
+        }
+        return implode($content);
+    }
 }

@@ -65,6 +65,7 @@ node_modules
 sitemap*.xml
 robots.txt
 tmp
+vendor
 
 # Static bundles
 /www/local/build/*

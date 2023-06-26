@@ -22,7 +22,8 @@ class GoodsModel extends Model
         'default' => 'id',
         'orderByName' => 'name',
         'orderByPriceDownToUp' => 'price',
-        'orderByPriceUpToDown' => 'price DESC'
+        'orderByPriceUpToDown' => 'price DESC',
+        'orderByReviews' => 'reviews'
     ];
 
     const PAGE_SIZE = 5;
@@ -39,7 +40,19 @@ class GoodsModel extends Model
         $limit = static::PAGE_SIZE;
         $page = ($page - 1) * $limit;
         $order = $this->getOrderType($orderType);
-        $pageData = $this->model->prepare("SELECT * FROM goods ORDER BY $order LIMIT :page, :limit");
+        if($order != 'reviews') {
+            $pageData = $this->model->prepare("SELECT * 
+            FROM goods 
+            ORDER BY $order 
+            LIMIT :page, :limit");
+        } else {
+            $pageData = $this->model->prepare("SELECT goods.*, 
+            (SELECT COUNT(goods_review.id) 
+            FROM goods_review
+            WHERE goods_review.goods_id = goods.id) AS RATING 
+            FROM goods 
+            ORDER BY RATING DESC LIMIT :page, :limit");
+        }
         $pageData->execute(['page' => $page, 'limit' => $limit]);
         $pageData = [$pageData->fetchAll(), $this->getPageCount(), $page, $orderType];
         return $pageData;
