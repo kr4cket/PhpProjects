@@ -15,8 +15,9 @@ class GetStatistics extends ConsoleCommand
         $this->goodsModel = new GoodsModel();
     }
 
+
     public function execute($args)
     {
-        
+
     }
 }

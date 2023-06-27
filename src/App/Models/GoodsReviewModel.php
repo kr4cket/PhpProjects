@@ -47,7 +47,7 @@ class GoodsReviewModel extends Model
         VALUES (:id, :goods_id ,:name, :surname, :phone_number, :is_active, :review, :rating);");
         $goodData->execute([
             'id' => null,
-            'goods_id' => $data['id'],
+            'goods_id' => $data['good_id'],
             'name' => $data['name'],
             'surname' => $data['surname'],
             'phone_number' => $data['phoneNumber'],

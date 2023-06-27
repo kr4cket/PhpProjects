@@ -23,9 +23,4 @@ class HtmlView extends View
         include VIEW_PATH.'layout_view.php';
     }
 
-    public function prepareForRender()
-    {
-        $pages = $this->data;
-        include VIEW_PATH.$this->template[0]."_view.php";
-    }
 }

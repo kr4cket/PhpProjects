@@ -43,7 +43,7 @@ class CreateRecordings extends ConsoleCommand
         $rowData = [];
         while ($count > 0) {
             $person = explode(' ', $this->generator->name);
-            $rowData['id'] = $this->getId();
+            $rowData['good_id'] = $this->getId();
             $rowData['name'] = $person[1];
             $rowData['surname'] = $person[0];
             $rowData['phoneNumber'] = $this->generator->phoneNumber;
@@ -79,6 +79,5 @@ class CreateRecordings extends ConsoleCommand
         }
         return $id;
     }
-
 
 }

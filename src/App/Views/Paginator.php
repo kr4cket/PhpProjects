@@ -29,6 +29,7 @@ class Paginator
     }
 
     private function createPageList($pageWidth) {
+
         if ($this->pageCount < $pageWidth*2+1){
             $pageArray = [];
             for ($i = 1; $i <= $this->pageCount; $i++) {
@@ -37,23 +38,80 @@ class Paginator
             return $pageArray;
         }
 
-        if ($this->pageCount - $this->pageIndex < 2) {
-            return [1, $this->dots, $this->pageCount - 2, $this->pageCount - 1, $this->pageCount];
-        }
-        if ($this->pageIndex - 1 < 2) {
-            return [1, 2, 3, $this->dots, $this->pageCount];
-        }
-
-        if ($this->pageIndex - 1 <= 3) {
-            return [1, 2, 3, 4, 5, 6, $this->dots, $this->pageCount];
+        if ($this->pageCount - $this->pageIndex < $pageWidth) {
+            $pages = [1];
+            $pages[] = $this->dots;
+            for ($i = $pageWidth; $i >= 0; $i--) {
+                $pages[] = $this->pageCount - $i;
+            }
+            return $pages;
         }
 
-        if ($this->pageCount - $this->pageIndex <= 3) {
-            return [1, $this->dots, $this->pageCount - 4, $this->pageCount - 3, $this->pageCount - 2, $this->pageCount - 1, $this->pageCount];
+        if ($this->pageCount - $this->pageIndex == $pageWidth) {
+            $pages = [1];
+            $pages[] = $this->dots;
+            for ($i = $pageWidth; $i > 0; $i--) {
+                $pages[] = $this->pageIndex - $i;
+            }
+            for ($i = $pageWidth; $i >= 0; $i--) {
+                $pages[] = $this->pageCount - $i;
+            }
+            return $pages;
         }
 
-        return [1, $this->dots, $this->pageIndex - 2, $this->pageIndex - 1,
-            $this->pageIndex, $this->pageIndex + 1, $this->pageIndex + 2, $this->dots, $this->pageCount];
+        if ($this->pageCount - $this->pageIndex == $pageWidth+1) {
+            $pages = [1];
+            $pages[] = $this->dots;
+            for ($i = $pageWidth; $i >= 0; $i--) {
+                $pages[] = $this->pageIndex - $i;
+            }
+            for ($i = $pageWidth; $i >= 0; $i--) {
+                $pages[] = $this->pageCount - $i;
+            }
+            return $pages;
+        }
+
+        
+        if ($this->pageIndex - 1 < $pageWidth) {
+            $pages = [];
+            for ($i = 1; $i <= $pageWidth+1; $i++) {
+                $pages[] = $i;
+            }
+            $pages[] = $this->dots;
+            $pages[] = $this->pageCount;
+            return $pages;
+        }
+
+        if ($this->pageIndex - 1 == $pageWidth) {
+            $pages = [];
+            for ($i = 1; $i <= $pageWidth*2+1; $i++) {
+                $pages[] = $i;
+            }
+            $pages[] = $this->dots;
+            $pages[] = $this->pageCount;
+            return $pages;
+        }
+
+        if ($this->pageIndex - 1 == $pageWidth + 1) {
+            $pages = [];
+            for ($i = 1; $i <= $pageWidth*2+2; $i++) {
+                $pages[] = $i;
+            }
+            $pages[] = $this->dots;
+            $pages[] = $this->pageCount;
+            return $pages;
+        }
+
+        $pages = [1,$this->dots];
+        for ($i = $pageWidth; $i > 0; $i--) {
+            $pages[] = $this->pageIndex - $i;
+        }
+        for ($i = 0; $i < $pageWidth+1; $i++) {
+            $pages[] = $this->pageIndex + $i;
+        }
+        $pages[] = $this->dots;
+        $pages[] = $this->pageCount;
+        return $pages;
     }
 }
 
