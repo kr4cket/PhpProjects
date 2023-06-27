@@ -35,10 +35,17 @@ class GoodsModel extends Model
         $this->manufacture = new GoodsManufactureModel();
     }
 
-    public function getPage($page = 1, $orderType = 'default')
+    public function checkId($id)
+    {
+        $condition = $this->model->prepare("SELECT * FROM goods WHERE id=:id");
+        $condition->execute(['id'=>$id]);
+        return empty($condition->fetchAll());
+    }
+
+    public function getPage($page = 1, $orderType = 'default', $filters ="default")
     {
         $limit = static::PAGE_SIZE;
-        $page = ($page - 1) * $limit;
+        $startPage = ($page - 1) * $limit;
         $order = $this->getOrderType($orderType);
         if($order != 'reviews') {
             $pageData = $this->model->prepare("SELECT * 
@@ -53,8 +60,13 @@ class GoodsModel extends Model
             FROM goods 
             ORDER BY RATING DESC LIMIT :page, :limit");
         }
-        $pageData->execute(['page' => $page, 'limit' => $limit]);
-        $pageData = [$pageData->fetchAll(), $this->getPageCount(), $page, $orderType];
+        $pageData->execute(['page' => $startPage, 'limit' => $limit]);
+        $pageData = [
+            'goods' => $pageData->fetchAll(), 
+            'pageCount' => $this->getPageCount(), 
+            'currentPage' =>$page, 
+            'link' => $this->getLinkParams($orderType)
+        ];
         return $pageData;
     }
 
@@ -82,7 +94,7 @@ class GoodsModel extends Model
             'manufacture_id' => $data['manufactureList'],
             'price' => $data['goodCost'],
             'description' => $data['goodDescription'],
-            'is_sold_out' => 0
+            'is_sold_out' => $data['isSoldOut'] ?? 0
         ]);
     }
 
@@ -142,7 +154,7 @@ class GoodsModel extends Model
         return (static::PAGE_SIZE * $pageNumber < $elementsNumber + static::PAGE_SIZE);
     }
 
-    private function getElementsCount()
+    public function getElementsCount()
     {
         $number = $this->model->query("SELECT COUNT(*) FROM goods");
         return $number->fetch()['COUNT(*)'];
@@ -150,5 +162,14 @@ class GoodsModel extends Model
     private function getPageCount()
     {
         return ceil($this->getElementsCount()/static::PAGE_SIZE);
+    }
+    private function getLinkParams($orderType="", $filters=[]) 
+    {
+        $linkData = [];
+        $linkData['orderType'] = $orderType;
+        foreach ($filters as $filter => $type) {
+            $linkData[$filter] = $type;
+        }
+        return $linkData;
     }
 }

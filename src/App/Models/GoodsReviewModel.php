@@ -42,7 +42,7 @@ class GoodsReviewModel extends Model
         return 0;
     }
 
-    public function addGoodData($data) {
+    public function addReview($data) {
         $goodData = $this->model->prepare("INSERT INTO goods_review (id, goods_id, name, surname, phone_number, is_active, review, rating)
         VALUES (:id, :goods_id ,:name, :surname, :phone_number, :is_active, :review, :rating);");
         $goodData->execute([
@@ -53,7 +53,7 @@ class GoodsReviewModel extends Model
             'phone_number' => $data['phoneNumber'],
             'review' => $data['review'],
             'rating' => $data['rating'],
-            'is_active' => 1
+            'is_active' => $data['is_active'] ?? 1
         ]);
     }
 

@@ -30,7 +30,7 @@ class ReviewsController extends Controller
         if (!empty($postData)) {
             $postData['id'] = $productId;
             if ($this->model->isValid($postData)) {
-                $this->model->addGoodData($postData);
+                $this->model->addReview($postData);
                 $this->template = ['success_review', 'Успех'];
                 return new HtmlView($this->template, $this->data);
             }

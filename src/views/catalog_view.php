@@ -1,7 +1,7 @@
 <?php
     use App\Views\Paginator;
-    $goods = $data[0];
-    $paginator = new Paginator(...array_slice($data,1));
+    $goods = $data['goods'];
+    $paginator = new Paginator($data['pageCount'], $data['currentPage'], $data['link']);
 ?>
 <form>
     <select name="orderType">
@@ -24,5 +24,5 @@
     <?}?>
 </table>
 
-<p><?=$paginator->render()?></p>
+<p><?=$paginator->render(5)?></p>
 

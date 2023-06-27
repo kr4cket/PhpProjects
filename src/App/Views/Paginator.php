@@ -5,52 +5,55 @@ class Paginator
 {
     private $pageIndex;
     private $pageCount;
-    private $orderType;
+    private $link = "";
+    private $dots = '...';
 
-    public function __construct($pageCount, $pageIndex, $orderType)
+    public function __construct($pageCount, $pageIndex, $linkParts)
     {
         $this->pageIndex = $pageIndex;
         $this->pageCount = $pageCount;
-        $this->orderType = $orderType;
         
-        if ($orderType != 'id') {
-            $this->orderType="&orderType=$orderType";
-        } else {
-            $this->orderType = '';
+        foreach ($linkParts as $partKey => $part) {
+            $this->link.="&$partKey=$part";
         }
     }
 
-    public function render()
+    public function render($pageWidth)
     {
-        $pages = $this->createPageList();
-        $content = [];
-        foreach ($pages as $page) {
-            if ($page == '...') {
-                continue;
-            }
-            $content[] = html_entity_decode("<a href="."/?page=".$page.$this->orderType.">$page</a>");
-        }
-        return implode(" ", $content);
+        $pages = $this->createPageList($pageWidth);
+        $data = [
+            'pages' => $pages,
+            'link' => $this->link
+        ];
+        return (new PrepareHtmlView("pagination", $data))->render();
     }
 
-    private function createPageList() {
-        if ($this->pageCount < 5){
+    private function createPageList($pageWidth) {
+        if ($this->pageCount < $pageWidth*2+1){
             $pageArray = [];
             for ($i = 1; $i <= $this->pageCount; $i++) {
                 $pageArray[] = $i;
             }
             return $pageArray;
         }
-        if ($this->pageIndex - 2 > 1 && $this->pageIndex+2 < $this->pageCount) {
-            return [1, '...', $this->pageIndex - 2, $this->pageIndex - 1, $this->pageIndex, 
-            $this->pageIndex + 1, $this->pageIndex + 2, '...', $this->pageCount];
+
+        if ($this->pageCount - $this->pageIndex < 2) {
+            return [1, $this->dots, $this->pageCount - 2, $this->pageCount - 1, $this->pageCount];
         }
-        if ($this->pageIndex - 2 > 1 && $this->pageIndex+2 < $this->pageCount) {
-            return [1, '...', $this->pageCount - 2, $this->pageCount - 1, $this->pageCount];
+        if ($this->pageIndex - 1 < 2) {
+            return [1, 2, 3, $this->dots, $this->pageCount];
         }
-        if ($this->pageIndex + 2 < $this->pageCount) {
-            return [1, 2, 3, '...', $this->pageCount];
+
+        if ($this->pageIndex - 1 <= 3) {
+            return [1, 2, 3, 4, 5, 6, $this->dots, $this->pageCount];
         }
+
+        if ($this->pageCount - $this->pageIndex <= 3) {
+            return [1, $this->dots, $this->pageCount - 4, $this->pageCount - 3, $this->pageCount - 2, $this->pageCount - 1, $this->pageCount];
+        }
+
+        return [1, $this->dots, $this->pageIndex - 2, $this->pageIndex - 1,
+            $this->pageIndex, $this->pageIndex + 1, $this->pageIndex + 2, $this->dots, $this->pageCount];
     }
 }
 

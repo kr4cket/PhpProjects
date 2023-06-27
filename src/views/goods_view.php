@@ -15,4 +15,13 @@
 <br>
 <h1>Отзывы</h1>
 <a href=<?="/review?productId=".$data['id']?>>Добавить отзыв</a>
-<?=$data['reviews'] ?>
+<? foreach($data['reviews'] as $review) { ?>
+    <div>
+        <p><?=$review['name'].' '.$review['surname']?></p>
+        <p><?=$review['phone_number']?></p>
+        <p><?="Оценка: ".$review['rating']?></p>
+        <p><?=$review['review'];}?></p>
+        <br>
+    </div>
+
+
