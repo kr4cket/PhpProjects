@@ -150,18 +150,18 @@ class GoodsModel extends Model
     }
     public function existPage($pageNumber)
     {
-        $elementsNumber = $this->getElementsCount();
+        $elementsNumber = $this->getAllGoodsCount();
         return (static::PAGE_SIZE * $pageNumber < $elementsNumber + static::PAGE_SIZE);
     }
 
-    public function getElementsCount()
+    public function getAllGoodsCount()
     {
         $number = $this->model->query("SELECT COUNT(*) FROM goods");
         return $number->fetch()['COUNT(*)'];
     }
     private function getPageCount()
     {
-        return ceil($this->getElementsCount()/static::PAGE_SIZE);
+        return ceil($this->getAllGoodsCount()/static::PAGE_SIZE);
     }
     private function getLinkParams($orderType="", $filters=[]) 
     {
@@ -171,5 +171,33 @@ class GoodsModel extends Model
             $linkData[$filter] = $type;
         }
         return $linkData;
+    }
+
+    public function getRandomId() 
+    {
+        $id = $this->model->query("SELECT id FROM goods ORDER BY RAND() LIMIT 1");
+        return $id->fetch()['id'];
+    }
+
+    public function getSoldOutGoodsCount()
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods WHERE is_sold_out = 1");
+        return $count->fetch()['COUNT(*)'];
+    }
+
+    public function getGoodsCount()
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods WHERE is_sold_out = 0");
+        return $count->fetch()['COUNT(*)'];
+    }
+
+    public function changeDescription($id, $description)
+    {
+        if ($this->existProductId($id)) {
+            $request = $this->model->prepare("UPDATE goods SET description=:description WHERE id=:id");
+            $request->execute(['id'=>$id, 'description'=>$description]);
+            return $this->getGoodData($id);
+        }
+        return "Такого товара в базе нет!!";
     }
 }

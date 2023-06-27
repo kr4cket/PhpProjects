@@ -74,4 +74,22 @@ class GoodsReviewModel extends Model
         $reviewData->execute(['id'=>$productId]);
         return $reviewData->fetchAll();
     }
+
+    public function getAllReviews()
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods_review");
+        return $count->fetch()['COUNT(*)'];
+    }
+
+    public function getModeratedReviews()
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods_review WHERE is_active=0");
+        return $count->fetch()['COUNT(*)'];
+    }
+
+    public function getActiveReviews()
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods_review WHERE is_active=1");
+        return $count->fetch()['COUNT(*)'];
+    }
 }

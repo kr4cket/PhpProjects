@@ -2,6 +2,7 @@
 
 namespace App\Core;
 use App\Core\Router;
+use App\Commands\CommandHelper;
 use Exception;
 
 class Application
@@ -27,11 +28,8 @@ class Application
 
     public function consoleRun($argv) 
     {
-        if (array_key_exists($argv[1], ConsoleCommand::$commands)) {
-            $command = new ConsoleCommand::$commands[$argv[1]]();
-            echo($command->execute(array_slice($argv, 2)));
-        }else {
-            echo(ConsoleCommand::getCommands());
-        }
+        $command = CommandHelper::checkCommand($argv[1] ?? 'default');
+        $command = new $command();
+        echo($command->execute(...array_slice($argv, 2)));
     }
 }
