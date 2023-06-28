@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Commands;
+
 use App\Core\ConsoleCommand;
 use App\Models\GoodsReviewModel;
-use Faker;
 use App\Models\GoodsModel;
+use Faker;
 
 class CreateReviews extends ConsoleCommand
 {
@@ -19,16 +20,17 @@ class CreateReviews extends ConsoleCommand
         $this->goodModel = new GoodsModel();
     }
 
-    public function execute($number=null)
+    public function execute($number=null): string
     {
         if (isset($number)) {
-
             if($number > 10000) {
                 return "Число превышает предельно допустимую норму!";
             }
             $this->CreateReviewRecords($number);
+
             return "Сгенерировано ".$number." записей";
         }
+
         return $this->getInfo();
     }
 
@@ -49,8 +51,7 @@ class CreateReviews extends ConsoleCommand
         }
     }
 
-
-    public function getInfo()
+    public function getInfo(): string
     {
         return "-cr, --create_reviews [REVIEWS_NUM] - Заполняет базу данных отзывов";
     }

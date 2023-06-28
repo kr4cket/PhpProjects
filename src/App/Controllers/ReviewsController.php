@@ -1,6 +1,8 @@
 <?php
 namespace App\Controllers;
+
 use App\Core\Controller;
+use App\Core\View;
 use App\Models\GoodsModel;
 use App\Models\GoodsReviewModel;
 use App\Views\HtmlView;
@@ -17,13 +19,14 @@ class ReviewsController extends Controller
         $this->goodsModel = new GoodsModel();
     }
 
-    public function add($productId)
+    public function add($productId): View
     {
         $postData = $_POST;
 
         if (!$this->goodsModel->existProductId($productId)) {
             $this->template = ['not_found', 'Ошибка'];
             $this->data = 'с товаром';
+
             return new HtmlView($this->template, $this->data);
         }
 
@@ -32,14 +35,15 @@ class ReviewsController extends Controller
             if ($this->model->isValid($postData)) {
                 $this->model->addReview($postData);
                 $this->template = ['success_review', 'Успех'];
+
                 return new HtmlView($this->template, $this->data);
             }
         } 
 
         $this->data = $this->model->getFormData($postData);
         $this->template = ['add_review','Добавить отзыв'];
-        return new HtmlView($this->template, $this->data);
 
+        return new HtmlView($this->template, $this->data);
     }
 
 

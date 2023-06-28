@@ -3,4 +3,5 @@
         <a href="?page=<?=$page.$data['link']?>"><?=$page?></a>
     <?}else {?>
         <a><?=$page?></a>
-<?}}?>
+    <?}
+}?>

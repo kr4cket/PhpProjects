@@ -1,32 +1,28 @@
 <?php
 namespace App\Controllers;
+
 use App\Models\GoodsModel;
-use App\Models\GoodsManufactureModel;
-use App\Models\GoodsTypeModel;
-use App\Core\Controller;
 use App\Models\GoodsReviewModel;
+use App\Core\Controller;
+use App\Core\View;
 use App\Views\HtmlView;
 
 class GoodsController extends Controller
 {
     private $model;
-    private $type;
-    private $manufacture;
     private $reviews;
 
     public function __construct()
     {
         parent::__construct();
         $this->model = new GoodsModel();
-        $this->type = new GoodsTypeModel();
-        $this->manufacture = new GoodsManufactureModel();
         $this->reviews = new GoodsReviewModel();
     }
 
-    public function show($productId)
+    public function show($productId): View
     {
         $this->data = $this->model->getGoodData($productId);
-        if($this->data) {
+        if ($this->data) {
             $this->data['reviews'] = $this->reviews->getReviews($productId);
             $this->template = ['goods', $this->data['name']];
         } else {
@@ -44,7 +40,6 @@ class GoodsController extends Controller
             $this->data = $this->model->getFormData();
             $this->template = ['add_goods', 'Добавить товар'];
         } else {
-
             if ($this->model->isValid($postData)) {
                 $this->model->addGoodData($postData);
                 $this->data = $postData['goodName'];

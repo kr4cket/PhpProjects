@@ -1,7 +1,9 @@
 <?php
 namespace App\Controllers;
+
 use App\Models\GoodsModel;
 use App\Core\Controller;
+use App\Core\View;
 use App\Views\HtmlView;
 
 class CatalogsController extends Controller
@@ -14,7 +16,7 @@ class CatalogsController extends Controller
         $this->model = new GoodsModel();
     }
 
-    public function index($page=1, $orderType='default')
+    public function index($page=1, $orderType='default'): View
     {
         if ($this->model->existPage($page)) {
             $this->data = $this->model->getPage($page, $orderType);
@@ -23,6 +25,7 @@ class CatalogsController extends Controller
             $this->data = 'с товаром';
             $this->template = ['not_found', 'Ошибка'];
         }
+
         return new HtmlView($this->template, $this->data);
     }
 }

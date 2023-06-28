@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Models;
+
 use \App\Core\Model;
 
 class GoodsReviewModel extends Model
@@ -11,7 +13,7 @@ class GoodsReviewModel extends Model
         'rating' => ['isChecked']
     ];
 
-    public function getFormData($postData=[])
+    public function getFormData($postData=[]): array
     {
         if (!$postData) {
             return [
@@ -34,17 +36,47 @@ class GoodsReviewModel extends Model
         ];
     }
 
-    private function getRadio($data)
+    public function isValid($validateData): bool
     {
-        if (isset($data['rating'])) {
-            return $data['rating'];
+        $validateData['rating'] = $this->getRadio($validateData);
+        foreach ($validateData as $type => $param) {
+            if (array_key_exists($type, $this->paramRules)) {
+                $this->validator->validate($this->paramRules[$type], $param);
+            }
         }
-        return 0;
+
+        return empty($this->validator->getErrors());
     }
 
-    public function addReview($data) {
-        $goodData = $this->model->prepare("INSERT INTO goods_review (id, goods_id, name, surname, phone_number, is_active, review, rating)
-        VALUES (:id, :goods_id ,:name, :surname, :phone_number, :is_active, :review, :rating);");
+    public function getReviews($productId): array
+    {
+        $reviewData = $this->model->prepare("SELECT * FROM goods_review WHERE goods_id=:id");
+        $reviewData->execute(['id'=>$productId]);
+        return $reviewData->fetchAll();
+    }
+
+    public function getAllReviews(): int
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods_review");
+        return $count->fetch()['COUNT(*)'];
+    }
+
+    public function getModeratedReviews(): int
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods_review WHERE is_active=0");
+        return $count->fetch()['COUNT(*)'];
+    }
+
+    public function getActiveReviews(): int
+    {
+        $count = $this->model->query("SELECT COUNT(*) FROM goods_review WHERE is_active=1");
+        return $count->fetch()['COUNT(*)'];
+    }
+
+    public function addReview($data) 
+    {
+        $goodData = $this->model->prepare("INSERT INTO goods_review (id, goods_id, name, surname, phone_number,
+        is_active, review, rating) VALUES (:id, :goods_id ,:name, :surname, :phone_number, :is_active, :review, :rating);");
         $goodData->execute([
             'id' => null,
             'goods_id' => $data['good_id'],
@@ -56,40 +88,13 @@ class GoodsReviewModel extends Model
             'is_active' => $data['is_active'] ?? 1
         ]);
     }
-
-    public function isValid($validateData)
+    
+    private function getRadio($data): int
     {
-        $validateData['rating'] = $this->getRadio($validateData);
-        foreach ($validateData as $type => $param) {
-            if (array_key_exists($type, $this->paramRules)) {
-                $this->validator->validate($this->paramRules[$type], $param);
-            }
+        if (isset($data['rating'])) {
+            return $data['rating'];
         }
-        return empty($this->validator->getErrors());
-    }
 
-    public function getReviews($productId) 
-    {
-        $reviewData = $this->model->prepare("SELECT * FROM goods_review WHERE goods_id=:id");
-        $reviewData->execute(['id'=>$productId]);
-        return $reviewData->fetchAll();
-    }
-
-    public function getAllReviews()
-    {
-        $count = $this->model->query("SELECT COUNT(*) FROM goods_review");
-        return $count->fetch()['COUNT(*)'];
-    }
-
-    public function getModeratedReviews()
-    {
-        $count = $this->model->query("SELECT COUNT(*) FROM goods_review WHERE is_active=0");
-        return $count->fetch()['COUNT(*)'];
-    }
-
-    public function getActiveReviews()
-    {
-        $count = $this->model->query("SELECT COUNT(*) FROM goods_review WHERE is_active=1");
-        return $count->fetch()['COUNT(*)'];
+        return 0;
     }
 }

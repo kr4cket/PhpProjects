@@ -14,11 +14,13 @@
         {
             $uri = parse_url($_SERVER['REQUEST_URI']);
             $uriPath = $uri['path'];
+            
             if (array_key_exists('query', $uri)) {
                 parse_str($uri['query'], $uriParams);
             } else {
                 $uriParams = [];
             }
+
             foreach ($this->routes as $pattern => $route) {
                 if ($pattern == $uriPath) {
                     $controller = new $route[0]();
@@ -32,6 +34,7 @@
                 if (isset($controller)) {
                     $view = $controller->$action(...$uriParams);
                     $view->render();
+
                     return;
                 }
             }

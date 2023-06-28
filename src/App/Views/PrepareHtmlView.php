@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Views;
+
 use App\Core\View;
 
 class PrepareHtmlView extends View

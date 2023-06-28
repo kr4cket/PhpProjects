@@ -3,7 +3,9 @@
         foreach ($data['errors'] as $error) { ?>
         <h3><?=$error?></h3>
         <br>
-    <? }} ?>
+    <? }
+    } 
+?>
 <form method="post">
     <input type='text' name="goodName" required value=<?= $data["goodName"];?>>
     <br>

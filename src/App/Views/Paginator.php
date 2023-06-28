@@ -1,6 +1,8 @@
 <?php
 namespace App\Views;
 
+use App\Core\View;
+
 class Paginator
 {
     private $pageIndex;
@@ -18,23 +20,25 @@ class Paginator
         }
     }
 
-    public function render($pageWidth)
+    public function render($pageWidth): string
     {
         $pages = $this->createPageList($pageWidth);
         $data = [
             'pages' => $pages,
             'link' => $this->link
         ];
+
         return (new PrepareHtmlView("pagination", $data))->render();
     }
 
-    private function createPageList($pageWidth) {
-
+    private function createPageList($pageWidth): array
+    {
         if ($this->pageCount < $pageWidth*2+1){
             $pageArray = [];
             for ($i = 1; $i <= $this->pageCount; $i++) {
                 $pageArray[] = $i;
             }
+            
             return $pageArray;
         }
 
@@ -44,6 +48,7 @@ class Paginator
             for ($i = $pageWidth; $i >= 0; $i--) {
                 $pages[] = $this->pageCount - $i;
             }
+
             return $pages;
         }
 
@@ -56,6 +61,7 @@ class Paginator
             for ($i = $pageWidth; $i >= 0; $i--) {
                 $pages[] = $this->pageCount - $i;
             }
+
             return $pages;
         }
 
@@ -68,10 +74,10 @@ class Paginator
             for ($i = $pageWidth; $i >= 0; $i--) {
                 $pages[] = $this->pageCount - $i;
             }
+
             return $pages;
         }
 
-        
         if ($this->pageIndex - 1 < $pageWidth) {
             $pages = [];
             for ($i = 1; $i <= $pageWidth+1; $i++) {
@@ -79,6 +85,7 @@ class Paginator
             }
             $pages[] = $this->dots;
             $pages[] = $this->pageCount;
+
             return $pages;
         }
 
@@ -89,6 +96,7 @@ class Paginator
             }
             $pages[] = $this->dots;
             $pages[] = $this->pageCount;
+
             return $pages;
         }
 
@@ -99,6 +107,7 @@ class Paginator
             }
             $pages[] = $this->dots;
             $pages[] = $this->pageCount;
+
             return $pages;
         }
 
@@ -111,6 +120,7 @@ class Paginator
         }
         $pages[] = $this->dots;
         $pages[] = $this->pageCount;
+        
         return $pages;
     }
 }

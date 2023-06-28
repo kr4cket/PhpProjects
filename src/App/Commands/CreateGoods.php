@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Commands;
+
 use App\Core\ConsoleCommand;
-use Faker;
 use App\Models\GoodsModel;
+use Faker;
+
 
 class CreateGoods extends ConsoleCommand
 {
@@ -16,21 +18,21 @@ class CreateGoods extends ConsoleCommand
         $this->goodModel = new GoodsModel();
     }
 
-    public function execute($number=null)
+    public function execute($number=null): string
     {
         if (isset($number)) {
-
             if($number > 10000) {
                 return "Число превышает предельно допустимую норму!";
             }
-            $this->CreateGoodsRecords($number);
+            $this->сreateGoodsRecords($number);
+
             return "Сгенерировано ".$number." записей";
         }
+
         return $this->getInfo();
     }
 
-
-    private function CreateGoodsRecords($count)
+    private function сreateGoodsRecords($count)
     {
         $rowData = [];
         while ($count > 0) {
@@ -47,7 +49,7 @@ class CreateGoods extends ConsoleCommand
     }
 
 
-    public function getInfo()
+    public function getInfo(): string
     {
         return "-cg, --create_goods [GOODS_NUM] - Заполняет базу данных товаров";
     }

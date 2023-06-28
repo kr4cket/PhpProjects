@@ -1,17 +1,19 @@
 <?php
+
 namespace App\Models;
+
 use \App\Core\Model;
 
 class GoodsManufactureModel extends Model
 {
-    public function getManufactureById($id)
+    public function getManufactureById($id): string
     {
         $data = $this->model->prepare("SELECT manufacture_name FROM goods_manufacture WHERE id=:id");
         $data->execute(['id'=>$id]);
         return $data->fetch()['manufacture_name'];
     }
 
-    public function getData()
+    public function getData(): array
     {
         $data = $this->model->prepare("SELECT * FROM goods_manufacture");
         $data->execute();

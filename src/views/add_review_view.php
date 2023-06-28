@@ -2,7 +2,9 @@
         foreach ($data['errors'] as $error) { ?>
         <h3><?=$error?></h3>
         <br>
-    <? }} ?>
+    <? }
+    } 
+?>
 <form method="post">
     <p>Имя</p>
     <input type='text' name="name" required value=<?= $data["name"];?>>

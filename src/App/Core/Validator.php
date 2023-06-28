@@ -3,9 +3,9 @@
 
     class Validator
     {
+        protected static $instance;
         protected $paramErrors = [];
         protected $customRules = [];
-        protected static $instance;
 
         private function __construct()
         {
@@ -15,11 +15,12 @@
             }
         }
 
-        public static function getInstance()
+        public static function getInstance(): object
         {
             if (self::$instance === null) {
                 self::$instance = new self;
             }
+
             return self::$instance;
         }
 
@@ -40,45 +41,50 @@
         {
             $this->customRules[$name] = $func;
         }
-        protected function onlyDigits($userInput)
+
+        protected function onlyDigits($userInput): string
         {
             if (!preg_match("/[\d]+/", $userInput)) {
                 return "Поле введено некорректно!\n";
             }
         }
-        protected function isChecked($userInput)
+
+        protected function isChecked($userInput): string
         {
             if ($userInput <= 0) {
                 return "Поле не выбрано!\n";
             }
         }
-        protected function isPositiveNumber($userInput)
+
+        protected function isPositiveNumber($userInput): string
         {
             if ($userInput < 1000) {
                 return "Минимальная цена товара должна быть больше 1000 рублей!\n";
             }
         }
-        protected function isEmpty($userInput)
+
+        protected function isEmpty($userInput): string
         {
             if (empty($userInput)) {
                 return "Поле должно быть заполнено!\n";
             }
         }
-        protected function isLetter($userInput)
+
+        protected function isLetter($userInput): string
         {
             if (preg_match("/[\d]+/", $userInput)) {
                 return "Поле должно содержать только буквы!\n";
             }
         }
 
-        protected function isPhoneNumber($userInput)
+        protected function isPhoneNumber($userInput): string
         {
             if (!preg_match('~^(?:\+7|8)\d{10}$~', $userInput)) {
                 return "Поле введено некорректно!\n";
             }
         }
 
-        protected function minLength($userInput)
+        protected function minLength($userInput): string
         {
             if (strlen($userInput) < 3) {
                 return "Поле должно быть длиннее 3х символов!\n";

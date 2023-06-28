@@ -1,5 +1,6 @@
 <?php
     use App\Views\Paginator;
+
     $goods = $data['goods'];
     $paginator = new Paginator($data['pageCount'], $data['currentPage'], $data['link']);
 ?>
@@ -21,7 +22,8 @@
         <td><?= $parameter['price'] ?></td>
         <td><a href="/goods/<?=$parameter['id']?>">Подробнее</a></td>
     </tr>
-    <?}?>
+    <?}
+    ?>
 </table>
 
 <p><?=$paginator->render(5)?></p>

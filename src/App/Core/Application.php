@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Core;
+
 use App\Core\Router;
 use App\Commands\CommandHelper;
 use Exception;
@@ -17,6 +18,7 @@ class Application
         define('SRC_PATH', realpath(__DIR__).'/../../../');
         $this->router = new Router(CONFIG_PATH.'routes.php');    
     }
+    
     public function run()
     {
         try {

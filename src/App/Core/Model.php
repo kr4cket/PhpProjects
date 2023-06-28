@@ -1,5 +1,6 @@
 <?php
 namespace App\Core;
+
 use \App\Core\DataBaseConnection;
 use \App\Core\Validator;
 

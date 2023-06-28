@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Core;
 
 use Exception;
@@ -14,7 +15,7 @@ class DataBaseConnection
         $this->dbConnect();
     }
 
-    public static function getInstance()
+    public static function getInstance(): object
     {
         if (self::$instance === null) {
             self::$instance = new self;
@@ -38,7 +39,7 @@ class DataBaseConnection
         }
     }
 
-    public function getConnection()
+    public function getConnection(): object
     {
         return $this->connection;
     }

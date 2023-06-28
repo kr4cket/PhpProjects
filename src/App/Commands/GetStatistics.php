@@ -1,12 +1,15 @@
 <?php
 
 namespace App\Commands;
+
 use App\Core\ConsoleCommand;
 use App\Models\GoodsModel;
 use App\Models\GoodsReviewModel;
 
 class GetStatistics extends ConsoleCommand
 {
+    private $reviewModel;
+    private $goodsModel;
     private $commands = [
         '-a'  => "getAllStatistics",
         '-ag' => "getGoodsStatistics", 
@@ -16,8 +19,6 @@ class GetStatistics extends ConsoleCommand
         '-r'  => "getAllReviewsStatistics", 
         '-sg' => "getSoldOutGoodsStatistics"
     ];
-    private $reviewModel;
-    private $goodsModel;
 
     public function __construct()
     {
@@ -25,16 +26,18 @@ class GetStatistics extends ConsoleCommand
         $this->goodsModel = new GoodsModel();
     }
 
-    public function execute($args='')
+    public function execute($args=''): string
     {
         if (array_key_exists($args,$this->commands)) {
             $command = $this->commands[$args];
+
             return GetStatistics::$command();
         }
+
         return $this->getInfo();
     }
 
-    public function getInfo()
+    public function getInfo(): string
     {
         return "-gs, --get_statistics [OPTION] - Получить информацию о сайте".
         PHP_EOL."OPTIONS".PHP_EOL."-a  - Получить всю информацию".
@@ -46,7 +49,7 @@ class GetStatistics extends ConsoleCommand
         PHP_EOL."-sg - Получить количество распроданных товаров";
     }
 
-    private function getAllStatistics()
+    private function getAllStatistics(): string
     {
         $statistics = ["Вся статистика по сайту:"];
         foreach ($this->commands as $command) {
@@ -55,42 +58,49 @@ class GetStatistics extends ConsoleCommand
             }
             $statistics[] = GetStatistics::$command();
         }
+
         return implode(PHP_EOL, $statistics);
     }
 
-    private function getAllReviewsStatistics()
+    private function getAllReviewsStatistics(): string
     {
         $count = $this->reviewModel->getAllReviews();
+
         return "Всего ".$count." отзывов на товары";
     }
 
-    private function getModeratedReviewsStatistics()
+    private function getModeratedReviewsStatistics(): string
     {
         $count = $this->reviewModel->getModeratedReviews();
+
         return "На рассмотрении ".$count." отзывов";
     }
 
-    private function getReviewsStatistics()
+    private function getReviewsStatistics(): string
     {
         $count = $this->reviewModel->getActiveReviews();
+
         return "Всего активно ".$count." отзывов";
     }
 
-    private function getAllGoodsStatistics()
+    private function getAllGoodsStatistics(): string
     {
         $count = $this->goodsModel->getAllGoodsCount();
+
         return "Всего ".$count." товаров";
     }
 
-    private function getGoodsStatistics()
+    private function getGoodsStatistics(): string
     {
         $count = $this->goodsModel->getGoodsCount();
+
         return "В наличии ".$count." товаров";
     }
 
-    private function getSoldOutGoodsStatistics()
+    private function getSoldOutGoodsStatistics(): string
     {
         $count = $this->goodsModel->getSoldOutGoodsCount();
+        
         return "Распродано ".$count." товаров";
     }
 }

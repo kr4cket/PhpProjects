@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Commands;
+
 use App\Core\ConsoleCommand;
 
 class CommandHelper extends ConsoleCommand
@@ -17,11 +18,12 @@ class CommandHelper extends ConsoleCommand
         "default" =>\App\Commands\CommandHelper::class
     ];
 
-    public static function checkCommand($command)
+    public static function checkCommand($command): string
     {
         if (isset($command) && array_key_exists($command, self::$commands)) {
             return self::$commands[$command];
         }
+        
         return self::$commands['default'];
     }
 
