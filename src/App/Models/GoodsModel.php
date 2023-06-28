@@ -10,21 +10,21 @@ class GoodsModel extends Model
 {
     private $type;
     private $manufacture;
-    const PAGE_SIZE = 5;
+    const PAGE_SIZE = 20;
     private $paramRules = [
-        'goodName' => ['isEmpty', 'minLength'],
-        'typeList' => ['isChecked'],
-        'manufactureList' => ['isChecked'],
-        'goodCost' => ['onlyDigits', 'isEmpty', 'minLength', 'isPositiveNumber'],
-        'minPrice' => ['onlyNumbers','isPositive'],
-        'maxPrice' => ['onlyNumbers','isPositive', 'notZero']
+        'goodName'          => ['isEmpty', 'minLength'],
+        'typeList'          => ['isChecked'],
+        'manufactureList'   => ['isChecked'],
+        'goodCost'          => ['onlyDigits', 'isEmpty', 'minLength', 'isPositiveNumber'],
+        'minPrice'          => ['onlyNumbers','isPositive'],
+        'maxPrice'          => ['onlyNumbers','isPositive', 'notZero']
     ];
     private $orderTypes = [
-        'default' => 'id',
-        'orderByName' => 'name',
-        'orderByPriceDownToUp' => 'price',
-        'orderByPriceUpToDown' => 'price DESC',
-        'orderByReviews' => 'reviews'
+        ''                      => 'id',
+        'orderByName'           => 'name',
+        'orderByPriceDownToUp'  => 'price',
+        'orderByPriceUpToDown'  => 'price DESC',
+        'orderByReviews'        => 'reviews'
     ];
 
     public function __construct()
@@ -80,18 +80,18 @@ class GoodsModel extends Model
         $limit = static::PAGE_SIZE;
         $startPage = ($page - 1) * $limit;
         $params = [
-            'page' => $startPage,
-            'limit' => $limit,
+            'page'      => $startPage,
+            'limit'     => $limit,
             'orderType' => $this->getOrderType($orderType),
-            'filters' => $filters
+            'filters'   => $filters
         ];
         $data = $this->getPageData($params);
         $pageData = [
-            'goods' => $data['goods'], 
-            'pageCount' => $data['page'], 
-            'currentPage' =>$page, 
-            'link' => $this->getLinkParams($orderType, $filters),
-            'manufactures' => $this->manufacture->getData()
+            'goods'         => $data['goods'], 
+            'pageCount'     => $data['page'], 
+            'currentPage'   => $page, 
+            'link'          => $this->getLinkParams($orderType, $filters),
+            'manufactures'  => $this->manufacture->getData()
         ];
         return $pageData;
     }
@@ -110,13 +110,13 @@ class GoodsModel extends Model
         $goodData = $this->model->prepare("INSERT INTO goods (id, name, type_id, manufacture_id, price, description, is_sold_out)
         VALUES (:id ,:name, :type_id, :manufacture_id, :price, :description, :is_sold_out);");
         $goodData->execute([
-            'id' => null,
-            'name' => $data['goodName'],
-            'type_id' => $data['typeList'],
-            'manufacture_id' => $data['manufactureList'],
-            'price' => $data['goodCost'],
-            'description' => $data['goodDescription'],
-            'is_sold_out' => $data['isSoldOut'] ?? 0
+            'id'                => null,
+            'name'              => $data['goodName'],
+            'type_id'           => $data['typeList'],
+            'manufacture_id'    => $data['manufactureList'],
+            'price'             => $data['goodCost'],
+            'description'       => $data['goodDescription'],
+            'is_sold_out'       => $data['isSoldOut'] ?? 0
         ]);
     }
 
@@ -135,21 +135,21 @@ class GoodsModel extends Model
     {
         if (!$postData) {
             return [
-                'goodName' => '',
-                'goodCost' => '',
-                'goodDescription' => '',
-                'typeList' => $this->type->getData(),
-                'manufactureList' => $this->manufacture->getData(),
-                'errors' => []
+                'goodName'          => '',
+                'goodCost'          => '',
+                'goodDescription'   => '',
+                'typeList'          => $this->type->getData(),
+                'manufactureList'   => $this->manufacture->getData(),
+                'errors'            => []
             ];
         }
         return [
-            'goodName' => $postData['goodName'] ?? '',
-            'goodCost' => $postData['goodCost'] ?? '',
-            'goodDescription' => $postData['goodDescription'] ?? '',
-            'typeList' => $this->type->getData(),
-            'manufactureList' => $this->manufacture->getData(),
-            'errors' => $this->validator->getErrors()
+            'goodName'          => $postData['goodName'] ?? '',
+            'goodCost'          => $postData['goodCost'] ?? '',
+            'goodDescription'   => $postData['goodDescription'] ?? '',
+            'typeList'          => $this->type->getData(),
+            'manufactureList'   => $this->manufacture->getData(),
+            'errors'            => $this->validator->getErrors()
         ];
     }
 
@@ -192,7 +192,7 @@ class GoodsModel extends Model
             if($type == "default") {
                 continue;
             }
-            $linkData[$filter] = $type;
+            $linkData[$filter] = htmlspecialchars($type);
         }
         
         return $linkData;
@@ -219,7 +219,7 @@ class GoodsModel extends Model
     private function getPageData($params=[]): array 
     {   
         $requestParams = [
-            'page' => $params['page'],
+            'page'  => $params['page'],
             'limit' => $params['limit']
         ];
         $filterParams = $this->makeFilterParams($params['filters']);
@@ -254,41 +254,28 @@ class GoodsModel extends Model
 
     private function makeFilterParams($filterParams): array
     {
-        $result = "";
+        $result = [];
         $params = [];
         foreach ($filterParams as $filter=>$param) {
-
-            if ($param == "default" || empty($param)) {
+            if (empty($param)) {
                 continue;
             }
-            if (strlen($result) > 0) {
-                $result .= " AND ";
-            }
-            if ($filter == "manufacture") 
-            {
-                $result .= "manufacture_id=:manufacture";
-            }
-            if ($filter == "minPrice") 
-            {
-                $result .= "price > :minPrice";
-            }
-            if ($filter == "maxPrice") 
-            {
-                $result .= "price < :maxPrice";
-            }
-            if ($filter == "goodFilterName") 
-            {
-                $result .= "name LIKE CONCAT('%', :goodFilterName, '%')";
-            }
-            
+            $result[] = match($filter) {
+                "manufacture"       => "manufacture_id=:manufacture",
+                "minPrice"          => "price > :minPrice",
+                "maxPrice"          => "price < :maxPrice",
+                "goodFilterName"    => "name LIKE CONCAT('%', :goodFilterName, '%')"
+            };
             $params[$filter] = $param; 
         }
+        $result[] = "is_sold_out = 0";
+        $result = implode(' AND ', $result);
         if (strlen($result) > 0) {
             $result = "WHERE ".$result;
         }
         $resultArray = [
-            'request' => $result,
-            'params' => $params
+            'request'   => $result,
+            'params'    => $params
         ];
 
         return $resultArray;

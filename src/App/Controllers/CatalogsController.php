@@ -16,15 +16,15 @@ class CatalogsController extends Controller
         $this->model = new GoodsModel();
     }
 
-    public function index($page=1, $orderType='default', $manufacture='default', $goodFilterName='default',
-    $minPrice='default', $maxPrice='default'): View
+    public function index($page=1, $orderType='', $manufacture='', 
+    $goodFilterName='', $minPrice='', $maxPrice='', ...$args): View
     {
         if ($this->model->existPage($page)) {
             $filters = [
-                'manufacture' => $manufacture,
-                'goodFilterName' => $goodFilterName,
-                'minPrice' => $minPrice,
-                'maxPrice' =>$maxPrice
+                'manufacture'       => $manufacture,
+                'goodFilterName'    => $goodFilterName,
+                'minPrice'          => $minPrice,
+                'maxPrice'          => $maxPrice
             ];
             if ($this->model->isValid($filters)) {
                 $this->data = $this->model->getPage($page, $orderType, $filters);

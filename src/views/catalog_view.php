@@ -38,6 +38,7 @@
 <br>
 <h4>Каталог товаров</h4>
 <table>
+    <? if ($data['pageCount'] == 0) {echo('Товары не найдены!');}?>
     <?foreach ($goods as $good => $parameter) {?>
     <tr>
         <td><?= $parameter['name'] ?></td>
