@@ -34,14 +34,14 @@ class ReviewsController extends Controller
             $postData['id'] = $productId;
             if ($this->model->isValid($postData)) {
                 $this->model->addReview($postData);
-                $this->template = ['success_review', 'Успех'];
+                $this->template = ['goods/success_review', 'Успех'];
 
                 return new HtmlView($this->template, $this->data);
             }
         } 
 
         $this->data = $this->model->getFormData($postData);
-        $this->template = ['add_review','Добавить отзыв'];
+        $this->template = ['goods/add_review','Добавить отзыв'];
 
         return new HtmlView($this->template, $this->data);
     }

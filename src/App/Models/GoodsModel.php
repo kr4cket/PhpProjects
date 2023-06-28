@@ -245,6 +245,7 @@ class GoodsModel extends Model
             $filterRequest 
             ORDER BY RATING DESC LIMIT :page, :limit");
         }
+
         $pageData->execute($requestParams);
         $data['goods'] = $pageData->fetchAll();
         $data['page'] = $this->getPageCount($filterRequest,$filterRequestParams);
@@ -268,6 +269,7 @@ class GoodsModel extends Model
             };
             $params[$filter] = $param; 
         }
+
         $result[] = "is_sold_out = 0";
         $result = implode(' AND ', $result);
         if (strlen($result) > 0) {

@@ -28,10 +28,10 @@ class CatalogsController extends Controller
             ];
             if ($this->model->isValid($filters)) {
                 $this->data = $this->model->getPage($page, $orderType, $filters);
-                $this->template = ['catalog', 'Каталог товаров'];
+                $this->template = ['catalog/catalog', 'Каталог товаров'];
             } else {
                 $this->data = $this->model->getPage($page, $orderType);
-                $this->template = ['catalog', 'Каталог товаров'];
+                $this->template = ['catalog/catalog', 'Каталог товаров'];
             }
         } else {
             $this->data = 'с товаром';

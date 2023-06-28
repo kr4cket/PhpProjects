@@ -24,7 +24,7 @@ class GoodsController extends Controller
         $this->data = $this->model->getGoodData($productId);
         if ($this->data) {
             $this->data['reviews'] = $this->reviews->getReviews($productId);
-            $this->template = ['goods', $this->data['name']];
+            $this->template = ['goods/goods', $this->data['name']];
         } else {
             $this->template = 'not_found';
             $this->data = 'с товаром';
@@ -38,16 +38,16 @@ class GoodsController extends Controller
         $postData = $_POST;
         if (empty($postData)) {
             $this->data = $this->model->getFormData();
-            $this->template = ['add_goods', 'Добавить товар'];
+            $this->template = ['goods/add_goods', 'Добавить товар'];
         } else {
             if ($this->model->isValid($postData)) {
                 $this->model->addGoodData($postData);
                 $this->data = $postData['goodName'];
-                $this->template = ['success', 'Успех'];
+                $this->template = ['goods/success', 'Успех'];
             }
             else {
                 $this->data = $this->model->getFormData($postData);
-                $this->template = ['add_goods', 'Добавить товар'];
+                $this->template = ['goods/add_goods', 'Добавить товар'];
             }
         }
 
