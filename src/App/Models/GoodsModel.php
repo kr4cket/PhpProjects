@@ -15,7 +15,9 @@ class GoodsModel extends Model
         'goodName' => ['isEmpty', 'minLength'],
         'typeList' => ['isChecked'],
         'manufactureList' => ['isChecked'],
-        'goodCost' => ['onlyDigits', 'isEmpty', 'minLength', 'isPositiveNumber']
+        'goodCost' => ['onlyDigits', 'isEmpty', 'minLength', 'isPositiveNumber'],
+        'minPrice' => ['onlyNumbers','isPositive'],
+        'maxPrice' => ['onlyNumbers','isPositive', 'notZero']
     ];
     private $orderTypes = [
         'default' => 'id',
@@ -73,32 +75,23 @@ class GoodsModel extends Model
         return ["Такого товара в базе нет!!"];
     }
 
-    public function getPage($page = 1, $orderType = 'default', $filters ="default"): array
+    public function getPage($page = 1, $orderType = 'default', $filters = []): array
     {
         $limit = static::PAGE_SIZE;
         $startPage = ($page - 1) * $limit;
-        $order = $this->getOrderType($orderType);
-
-        if($order != 'reviews') {
-            $pageData = $this->model->prepare("SELECT * 
-            FROM goods 
-            ORDER BY $order 
-            LIMIT :page, :limit");
-        } else {
-            $pageData = $this->model->prepare("SELECT goods.*, 
-            (SELECT COUNT(goods_review.id) 
-            FROM goods_review
-            WHERE goods_review.goods_id = goods.id) AS RATING 
-            FROM goods 
-            ORDER BY RATING DESC LIMIT :page, :limit");
-        }
-
-        $pageData->execute(['page' => $startPage, 'limit' => $limit]);
+        $params = [
+            'page' => $startPage,
+            'limit' => $limit,
+            'orderType' => $this->getOrderType($orderType),
+            'filters' => $filters
+        ];
+        $data = $this->getPageData($params);
         $pageData = [
-            'goods' => $pageData->fetchAll(), 
-            'pageCount' => $this->getPageCount(), 
+            'goods' => $data['goods'], 
+            'pageCount' => $data['page'], 
             'currentPage' =>$page, 
-            'link' => $this->getLinkParams($orderType)
+            'link' => $this->getLinkParams($orderType, $filters),
+            'manufactures' => $this->manufacture->getData()
         ];
         return $pageData;
     }
@@ -182,9 +175,13 @@ class GoodsModel extends Model
         return $number->fetch()['COUNT(*)'];
     }
 
-    private function getPageCount(): int
+    private function getPageCount($request, $params): int
     {
-        return ceil($this->getAllGoodsCount()/static::PAGE_SIZE);
+        $count = $this->model->prepare("SELECT COUNT(*) 
+            FROM goods $request");
+        $count->execute($params);
+
+        return ceil($count->fetch()['COUNT(*)']/static::PAGE_SIZE);
     }
 
     private function getLinkParams($orderType="", $filters=[]): array
@@ -192,6 +189,9 @@ class GoodsModel extends Model
         $linkData = [];
         $linkData['orderType'] = $orderType;
         foreach ($filters as $filter => $type) {
+            if($type == "default") {
+                continue;
+            }
             $linkData[$filter] = $type;
         }
         
@@ -216,4 +216,81 @@ class GoodsModel extends Model
         return $this->orderTypes[$type] ?? 'id';
     }
     
+    private function getPageData($params=[]): array 
+    {   
+        $requestParams = [
+            'page' => $params['page'],
+            'limit' => $params['limit']
+        ];
+        $filterParams = $this->makeFilterParams($params['filters']);
+        $filterRequest = $filterParams['request'];
+        $filterRequestParams = $filterParams['params'];
+
+        if (!empty($filterRequestParams)) {
+            $requestParams = [...$requestParams, ...$filterRequestParams];
+        }
+
+        if($params['orderType'] != 'reviews') {
+            $pageData = $this->model->prepare("SELECT * 
+            FROM goods
+            $filterRequest 
+            ORDER BY ".$params['orderType']."
+            LIMIT :page, :limit");
+        } else {
+            $pageData = $this->model->prepare("SELECT goods.*, 
+            (SELECT COUNT(goods_review.id) 
+            FROM goods_review
+            WHERE goods_review.goods_id = goods.id) AS RATING 
+            FROM goods 
+            $filterRequest 
+            ORDER BY RATING DESC LIMIT :page, :limit");
+        }
+        $pageData->execute($requestParams);
+        $data['goods'] = $pageData->fetchAll();
+        $data['page'] = $this->getPageCount($filterRequest,$filterRequestParams);
+
+        return $data;
+    }
+
+    private function makeFilterParams($filterParams): array
+    {
+        $result = "";
+        $params = [];
+        foreach ($filterParams as $filter=>$param) {
+
+            if ($param == "default" || empty($param)) {
+                continue;
+            }
+            if (strlen($result) > 0) {
+                $result .= " AND ";
+            }
+            if ($filter == "manufacture") 
+            {
+                $result .= "manufacture_id=:manufacture";
+            }
+            if ($filter == "minPrice") 
+            {
+                $result .= "price > :minPrice";
+            }
+            if ($filter == "maxPrice") 
+            {
+                $result .= "price < :maxPrice";
+            }
+            if ($filter == "goodFilterName") 
+            {
+                $result .= "name LIKE CONCAT('%', :goodFilterName, '%')";
+            }
+            
+            $params[$filter] = $param; 
+        }
+        if (strlen($result) > 0) {
+            $result = "WHERE ".$result;
+        }
+        $resultArray = [
+            'request' => $result,
+            'params' => $params
+        ];
+
+        return $resultArray;
+    }
 }

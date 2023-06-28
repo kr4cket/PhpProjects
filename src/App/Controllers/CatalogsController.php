@@ -16,11 +16,23 @@ class CatalogsController extends Controller
         $this->model = new GoodsModel();
     }
 
-    public function index($page=1, $orderType='default'): View
+    public function index($page=1, $orderType='default', $manufacture='default', $goodFilterName='default',
+    $minPrice='default', $maxPrice='default'): View
     {
         if ($this->model->existPage($page)) {
-            $this->data = $this->model->getPage($page, $orderType);
-            $this->template = ['catalog', 'Каталог товаров'];
+            $filters = [
+                'manufacture' => $manufacture,
+                'goodFilterName' => $goodFilterName,
+                'minPrice' => $minPrice,
+                'maxPrice' =>$maxPrice
+            ];
+            if ($this->model->isValid($filters)) {
+                $this->data = $this->model->getPage($page, $orderType, $filters);
+                $this->template = ['catalog', 'Каталог товаров'];
+            } else {
+                $this->data = $this->model->getPage($page, $orderType);
+                $this->template = ['catalog', 'Каталог товаров'];
+            }
         } else {
             $this->data = 'с товаром';
             $this->template = ['not_found', 'Ошибка'];

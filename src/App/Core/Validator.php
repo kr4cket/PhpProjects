@@ -9,7 +9,8 @@
 
         private function __construct()
         {
-            $parentMethods = ['onlyDigits', 'isEmpty', 'isLetter', 'minLength', 'isPositiveNumber', 'isChecked', 'isPhoneNumber'];
+            $parentMethods = ['onlyDigits', 'isEmpty', 'isLetter', 'minLength', 'isPositiveNumber', 'isChecked',
+            'isPhoneNumber', 'isPositive', 'onlyNumbers'];
             foreach($parentMethods as $method) {
                 $this->customRules[$method] = [$this, $method];
             }
@@ -42,49 +43,63 @@
             $this->customRules[$name] = $func;
         }
 
-        protected function onlyDigits($userInput): string
+        protected function onlyDigits($userInput)
         {
             if (!preg_match("/[\d]+/", $userInput)) {
                 return "Поле введено некорректно!\n";
             }
         }
 
-        protected function isChecked($userInput): string
+        protected function isChecked($userInput)
         {
             if ($userInput <= 0) {
                 return "Поле не выбрано!\n";
             }
         }
 
-        protected function isPositiveNumber($userInput): string
+        protected function isPositiveNumber($userInput)
         {
             if ($userInput < 1000) {
                 return "Минимальная цена товара должна быть больше 1000 рублей!\n";
             }
         }
 
-        protected function isEmpty($userInput): string
+        protected function isPositive($userInput)
+        {
+            if ($userInput < 0 && !empty($userInput)) {
+                return "Поле с отрицательным числом!!!";
+            }
+        }
+
+        protected function onlyNumbers($userInput)
+        {
+            if (!preg_match("/[\d]+/", $userInput) && !empty($userInput)) {
+                return "Поле введено некорректно!\n";
+            }
+        }
+
+        protected function isEmpty($userInput)
         {
             if (empty($userInput)) {
                 return "Поле должно быть заполнено!\n";
             }
         }
 
-        protected function isLetter($userInput): string
+        protected function isLetter($userInput)
         {
             if (preg_match("/[\d]+/", $userInput)) {
                 return "Поле должно содержать только буквы!\n";
             }
         }
 
-        protected function isPhoneNumber($userInput): string
+        protected function isPhoneNumber($userInput)
         {
             if (!preg_match('~^(?:\+7|8)\d{10}$~', $userInput)) {
                 return "Поле введено некорректно!\n";
             }
         }
 
-        protected function minLength($userInput): string
+        protected function minLength($userInput)
         {
             if (strlen($userInput) < 3) {
                 return "Поле должно быть длиннее 3х символов!\n";
