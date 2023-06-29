@@ -8,6 +8,11 @@
     <header>
         <a href="/">На главную</a>
         <a href=/goods>Добавить товар</a>
+        <?if (empty($_COOKIE)) {?>
+            <a href=/registration>Регистрация</a>
+            <a href=/authorization>Авторизация</a>
+        <?} else{?> <a href=/profile>Профиль</a>
+        <?}?>
     </header>
         <?=$templateData['body'];?>
     <footer>

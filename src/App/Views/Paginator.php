@@ -10,7 +10,7 @@ class Paginator
     private $link = "";
     private $dots = '...';
 
-    public function __construct($pageCount, $pageIndex, $linkParts)
+    public function __construct($pageCount, $pageIndex, $linkParts=[])
     {
         $this->pageIndex = $pageIndex;
         $this->pageCount = $pageCount;

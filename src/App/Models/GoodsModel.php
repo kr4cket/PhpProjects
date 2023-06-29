@@ -269,8 +269,10 @@ class GoodsModel extends Model
             };
             $params[$filter] = $param; 
         }
-
-        $result[] = "is_sold_out = 0";
+        
+        if (empty($_COOKIE['role'])) {
+            $result[] = "is_sold_out = 0";
+        } 
         $result = implode(' AND ', $result);
         if (strlen($result) > 0) {
             $result = "WHERE ".$result;

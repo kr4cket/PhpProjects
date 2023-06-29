@@ -6,6 +6,7 @@ use \App\Core\Model;
 
 class GoodsReviewModel extends Model
 {
+    private $pageLimit = 3;
     private $paramRules = [
         'name' => ['isEmpty', 'minLength', 'isLetter'],
         'surname' => ['isEmpty', 'minLength', 'isLetter'],
@@ -89,6 +90,40 @@ class GoodsReviewModel extends Model
         ]);
     }
     
+    public function getInactiveReviews()
+    {
+        $request = $this->model->query("SELECT * FROM goods_review WHERE is_active=0");
+        $request->execute();
+        return $request->fetchAll();
+    }
+
+    public function getReviewPage($page) 
+    {
+        $startPage = ($page-1)*$this->pageLimit;
+        $request = $this->model->prepare("SELECT * FROM goods_review WHERE is_active=0 LIMIT :page, :limit");
+        $request->execute(['page' => $startPage, 'limit' => $this->pageLimit]);
+        return $request->fetchAll();
+    }
+
+    public function getReviewCount() 
+    {
+        $request = $this->model->prepare("SELECT COUNT(*) FROM goods_review WHERE is_active=0");
+        $request->execute();
+        return ceil($request->fetch()['COUNT(*)']/$this->pageLimit);
+    }
+
+    public function deleteReview($id) 
+    {
+        $request = $this->model->prepare("DELETE FROM goods_review WHERE id=:id");
+        $request->execute(["id"=>$id]);
+    }
+
+    public function allowReview($id) 
+    {
+        $request = $this->model->prepare("UPDATE goods_review SET is_active = 1 WHERE id=:id");
+        $request->execute(["id"=>$id]);
+    }
+
     private function getRadio($data): int
     {
         if (isset($data['rating'])) {
@@ -97,4 +132,5 @@ class GoodsReviewModel extends Model
 
         return 0;
     }
+
 }

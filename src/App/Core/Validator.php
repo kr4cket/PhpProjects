@@ -101,8 +101,8 @@
 
         protected function minLength($userInput)
         {
-            if (strlen($userInput) < 3) {
-                return "Поле должно быть длиннее 3х символов!\n";
+            if (strlen($userInput) < 6) {
+                return "Поле должно быть длиннее 6 символов!\n";
             }
         }
 
