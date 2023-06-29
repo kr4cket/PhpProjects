@@ -1,11 +1,10 @@
 <?
     use App\Views\Paginator;
-    $userName = $data['name'];
-    $userSurname = $data['surname'];
+    $userName = $data['user_name'];
+    $userSurname = $data['user_surname'];
     $userLogin = $data['login'];
     $reviews = $data['reviews'];
     $message = $data['action'] ?? "";
-    print_r($message);
 
     $paginator = new Paginator($data['pageCount'], $data['currentPage'], $data['link'] ?? []);
 ?>

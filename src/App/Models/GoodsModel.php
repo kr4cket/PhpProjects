@@ -10,6 +10,8 @@ class GoodsModel extends Model
 {
     private $type;
     private $manufacture;
+    private $user;
+    private $userId;
     const PAGE_SIZE = 20;
     private $paramRules = [
         'goodName'          => ['isEmpty', 'minLength'],
@@ -32,6 +34,8 @@ class GoodsModel extends Model
         parent::__construct();
         $this->type = new GoodsTypeModel();
         $this->manufacture = new GoodsManufactureModel();
+        $this->user = new UserModel();
+        $this->userId = $_SESSION['id'] ?? null;
     }
 
     public function checkId($id): bool
@@ -270,7 +274,7 @@ class GoodsModel extends Model
             $params[$filter] = $param; 
         }
         
-        if (empty($_COOKIE['role'])) {
+        if (!$this->user->isAdmin($this->userId)) {
             $result[] = "is_sold_out = 0";
         } 
         $result = implode(' AND ', $result);

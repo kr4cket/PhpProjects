@@ -7,7 +7,6 @@ use App\Models\GoodsReviewModel;
 
 class UserModel extends Model
 {
-
     private $reviewModel;
     private $paramRules = [
         'userName'             => ['isEmpty', 'minLength'],
@@ -65,10 +64,78 @@ class UserModel extends Model
         $this->validator->getErrors();
     }
 
-    public function getUserData($login)
+    public function getUserId($login)
     {
-        $request = $this->model->prepare("SELECT * FROM users WHERE login=:login");
+        $request = $this->model->prepare("SELECT id FROM users WHERE login=:login");
         $request->execute(['login' => $login]);
+        return $request->fetch();
+    }
+
+    public function isAuth($postData) 
+    {
+        if ($this->checkLogin($postData['userLogin'])) {
+            return false;
+        }
+        if ($this->checkPassword($postData['userLogin'], $postData['userPassword'])) {
+            return false;
+        }
+        return true;
+    }
+
+    public function startSession($login)
+    {
+        $data = $this->getUserId($login);
+        $_SESSION["id"] = $data['id'];
+    }
+
+    public static function isCurrent()
+    {
+        return isset($_SESSION['id']);
+    }
+
+    public function isAdmin($id)
+    {
+        $isAdmin = $this->model->prepare("SELECT is_admin FROM users WHERE id=:id");
+        $isAdmin->execute(['id'=>$id]);
+        if (self::isCurrent() && $isAdmin->fetch()['is_admin'] == 1) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    public function dieSession()
+    {
+        unset($_SESSION['id']);
+    }
+
+    public function getAdminData($postData, $page, $id)
+    {
+        if ($postData) {
+            $key = array_keys($postData)[0];
+            $value = $postData[$key];
+            if ($value == "Одобрить") {
+                $this->reviewModel->allowReview($key);
+                $messageData = "Комментарий одобрен";
+            } else {
+                $this->reviewModel->deleteReview($key);
+                $messageData = "Комментарий удален";
+            }
+        }
+        $data = $this->getUserData($id);
+        $data['reviews'] = $this->reviewModel->getReviewPage($page);
+        $data['currentPage'] = $page;
+        $data['pageCount'] = $this->reviewModel->getReviewCount();
+        $data['action'] = $messageData ?? "";
+
+        return $data;
+    }
+
+    public function getUserData($id)
+    {
+        $request = $this->model->prepare("SELECT user_name, user_surname, login FROM users WHERE id=:id");
+        $request->execute(['id'=>$id]);
         return $request->fetch();
     }
 

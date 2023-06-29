@@ -11,13 +11,11 @@ use App\Views\HtmlView;
 class UserController extends Controller
 {
     private $model;
-    private $reviewModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->model = new UserModel();
-        $this->reviewModel = new GoodsReviewModel();
     }
 
     public function auth()
@@ -27,23 +25,11 @@ class UserController extends Controller
         if (empty($postData)) {
             $this->template = ['user/authorization', 'Авторизация'];
         } else {
-
-            if ($this->model->checkLogin($postData['userLogin'])) {
-                $this->data = ['Неверный логин'];
-                $this->template = ['user/authorization', 'Неверный логин'];
-            }
-            if ($this->model->checkPassword($postData['userLogin'], $postData['userPassword'])) {
-                $this->data = ['Неверный пароль'];
-                $this->template = ['user/authorization', 'Неверный пароль'];
-            }
-
-            if (empty($this->template)) {
-                $data = $this->model->getUserData($postData['userLogin']);
-                setcookie("name", $data['user_name'], time() + 86000);
-                setcookie("surname", $data['user_surname'], time() + 86000);
-                setcookie("login", $data['login'], time() + 86000);
-                setcookie('role', $data['is_admin'], time() + 86000);
+            if ($this->model->isAuth($postData)) {
+                $this->model->startSession($postData['userLogin']);
                 $this->template = ['user/success_authorization', 'Успешно'];
+            } else {
+                $this->template = ['user/authorization', 'Неверный логин или пароль'];
             }
         }
 
@@ -55,7 +41,7 @@ class UserController extends Controller
         $postData = $_POST;
 
         if (empty($postData)) {
-            $this->template = ['user/registration', 'Регистрация!'];
+            $this->template = ['user/registration', 'Регистрация'];
         } else {
 
             if ($this->model->isValid($postData)) {
@@ -73,34 +59,19 @@ class UserController extends Controller
 
     public function show($page = 1)
     {
-        $userData = $_COOKIE;
+        $sessionData = $_SESSION['id'];
         $postData = $_POST;
 
-        if($userData) {
-            if ($postData) {
-                $key = array_keys($postData)[0];
-                $value = $postData[$key];
-                if ($value == "Одобрить") {
-                    $this->reviewModel->allowReview($key);
-                    $messageData = "Комментарий одобрен";
-                } else {
-                    $this->reviewModel->deleteReview($key);
-                    $messageData = "Комментарий удален";
-                }
-            }
-    
-            if($userData['role'] == 1) {
-                $this->data = $userData;
-                $this->data['reviews'] = $this->reviewModel->getReviewPage($page);
-                $this->data['currentPage'] = $page;
-                $this->data['pageCount'] = $this->reviewModel->getReviewCount();
-                $this->data['action'] = $messageData ?? "";
+        if (UserModel::isCurrent()) {
+            
+            if ($this->model->isAdmin($sessionData)) {
+                $this->data = $this->model->getAdminData($postData,$page, $sessionData);
                 $this->template = ['user/admin_profile', 'Админ'];
             } else {
-                $this->data = $userData;
+                $this->data = $this->model->getUserData($sessionData);
                 $this->template = ['user/user_profile', 'Профиль'];
             }
-
+        
         } else {
             $this->template = ['user/logout'];
         }
@@ -110,10 +81,7 @@ class UserController extends Controller
 
     public function logout() 
     {
-        setcookie("name", 0, time()-10);
-        setcookie("surname", 0, time()-10);
-        setcookie("login", 0, time()-10);
-        setcookie('role', 0, time()-10);
+        $this->model->dieSession();
         $this->template = ['user/logout'];
         return new HtmlView($this->template, $this->data);
     }

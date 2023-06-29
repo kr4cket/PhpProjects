@@ -1,6 +1,6 @@
 <?
-    $userName = $data['name'];
-    $userSurname = $data['surname'];
+    $userName = $data['user_name'];
+    $userSurname = $data['user_surname'];
     $userLogin = $data['login'];
 ?>
 

@@ -1,3 +1,4 @@
+<?use App\Models\UserModel;?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,7 +9,7 @@
     <header>
         <a href="/">На главную</a>
         <a href=/goods>Добавить товар</a>
-        <?if (empty($_COOKIE)) {?>
+        <?if (!UserModel::isCurrent()) {?>
             <a href=/registration>Регистрация</a>
             <a href=/authorization>Авторизация</a>
         <?} else{?> <a href=/profile>Профиль</a>
