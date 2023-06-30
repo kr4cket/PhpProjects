@@ -16,16 +16,6 @@ class GoodsReviewModel extends Model
 
     public function getFormData($postData=[]): array
     {
-        if (!$postData) {
-            return [
-                'name' => '',
-                'surname' => '',
-                'phoneNumber' => '',
-                'review' => '',
-                'rating' => -1,
-                'errors' => []
-            ];
-        }
         return [
             'id' => $postData['id'] ?? '',
             'name' => $postData['name'] ?? '',

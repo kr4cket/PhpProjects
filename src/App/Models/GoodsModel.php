@@ -137,23 +137,13 @@ class GoodsModel extends Model
 
     public function getFormData($postData=null): array
     {
-        if (!$postData) {
-            return [
-                'goodName'          => '',
-                'goodCost'          => '',
-                'goodDescription'   => '',
-                'typeList'          => $this->type->getData(),
-                'manufactureList'   => $this->manufacture->getData(),
-                'errors'            => []
-            ];
-        }
         return [
             'goodName'          => $postData['goodName'] ?? '',
             'goodCost'          => $postData['goodCost'] ?? '',
             'goodDescription'   => $postData['goodDescription'] ?? '',
             'typeList'          => $this->type->getData(),
             'manufactureList'   => $this->manufacture->getData(),
-            'errors'            => $this->validator->getErrors()
+            'errors'            => $this->validator->getErrors() ?? ''
         ];
     }
 
@@ -280,7 +270,7 @@ class GoodsModel extends Model
         } 
 
         $result = implode(' AND ', $result);
-
+        
         if (strlen($result) > 0) {
             $result = "WHERE ".$result;
         }

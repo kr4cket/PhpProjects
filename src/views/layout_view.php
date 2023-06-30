@@ -1,4 +1,4 @@
-<?use App\Models\UserModel;?>
+
 <!DOCTYPE html>
 <html>
 <head>

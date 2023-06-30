@@ -38,7 +38,7 @@ class ReviewsController extends Controller
             
             if ($this->model->isValid($postData)) {
                 $this->model->addReview($postData);
-                $this->template = ['goods/success_review', 'Успех'];
+                $this->template = ['reviews/success_review', 'Успех'];
 
                 return new HtmlView($this->template, $this->data);
             }
@@ -46,7 +46,7 @@ class ReviewsController extends Controller
 
         $this->data = $this->model->getFormData($postData);
         $this->data['isAuth'] = $this->user->isAuthorized();
-        $this->template = ['goods/add_review','Добавить отзыв'];
+        $this->template = ['reviews/add_review','Добавить отзыв'];
 
         return new HtmlView($this->template, $this->data);
     }

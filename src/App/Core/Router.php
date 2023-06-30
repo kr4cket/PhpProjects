@@ -22,6 +22,7 @@
             }
 
             foreach ($this->routes as $pattern => $route) {
+                
                 if ($pattern == $uriPath) {
                     $controller = new $route[0]();
                     $action = $route[1];

@@ -23,6 +23,7 @@ class CatalogsController extends Controller
     $goodFilterName='', $minPrice='', $maxPrice='', ...$args): View
     {
         if ($this->model->existPage($page)) {
+            
             $filters = [
                 'manufacture'       => $manufacture,
                 'goodFilterName'    => $goodFilterName,
@@ -37,7 +38,7 @@ class CatalogsController extends Controller
                 $this->data = $this->model->getPage($page, $orderType);
                 $this->template = ['catalog/catalog', 'Каталог товаров'];
             }
-            
+
         } else {
             $this->data['message'] = 'с товаром';
             $this->template = ['not_found', 'Ошибка'];

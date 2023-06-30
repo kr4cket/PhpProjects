@@ -16,6 +16,8 @@ class Application
         define('CONFIG_PATH', realpath(__DIR__).'/../../../configs/');
         define('VIEW_PATH', realpath(__DIR__).'/../../views/');
         define('SRC_PATH', realpath(__DIR__).'/../../../');
+        define("STYLES", realpath(__DIR__).'/../../styles');
+        
         session_start();
         $this->router = new Router(CONFIG_PATH.'routes.php');    
     }

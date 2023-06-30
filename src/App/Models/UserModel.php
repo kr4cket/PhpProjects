@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Core\Model;
 use App\Models\GoodsReviewModel;
 
+
 class UserModel extends Model
 {
     private $reviewModel;
@@ -21,11 +22,11 @@ class UserModel extends Model
         $this->reviewModel = new GoodsReviewModel();
     }
 
-    public function addUser($userData) 
+    public function addUser($userData)
     {
         $request = $this->model->prepare("INSERT INTO users (login, password, user_name, user_surname)
         VALUES (:login, :password, :user_name, :user_surname);");
-        
+
         $request->execute([
             'login'        => $userData['userLogin'],
             'password'     => password_hash($userData['userPassword'], PASSWORD_DEFAULT),
@@ -47,7 +48,7 @@ class UserModel extends Model
 
     public function getErrors()
     {
-        return $this->validator->getErrors(); 
+        return $this->validator->getErrors();
     }
 
     public function isAuth($postData)
@@ -58,7 +59,7 @@ class UserModel extends Model
 
         if (empty($userData)) {
             return null;
-        } 
+        }
         if (!password_verify($postData['userPassword'], $userData['password'])) {
             return null;
         }

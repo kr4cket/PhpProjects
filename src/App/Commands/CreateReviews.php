@@ -48,6 +48,7 @@ class CreateReviews extends ConsoleCommand
             $rowData['is_active'] = mt_rand(0,1);
             $count -= 1;
             $this->reviewModel->addReview($rowData);
+
         }
     }
 

@@ -1,10 +1,10 @@
-<? 
+<?
     if (isset($data['errors'])) {
         foreach ($data['errors'] as $error) { ?>
         <h3><?=$error?></h3>
         <br>
     <? }
-    } 
+    }
 ?>
 <form method="post">
     <p>Название товара</p>

@@ -1,5 +1,6 @@
 <?php
-    namespace App\Core;
+
+namespace App\Core;
 
     class Validator
     {
@@ -9,8 +10,8 @@
 
         private function __construct()
         {
-            $parentMethods = ['onlyDigits', 'isEmpty', 'isLetter', 'minLength', 'isPositiveNumber', 'isChecked',
-            'isPhoneNumber', 'isPositive', 'onlyNumbers'];
+            $parentMethods = ['onlyDigits', 'isEmpty', 'isLetter', 'minLength',
+            'isPositiveNumber', 'isChecked','isPhoneNumber', 'isPositive', 'onlyNumbers'];
             foreach($parentMethods as $method) {
                 $this->customRules[$method] = [$this, $method];
             }
