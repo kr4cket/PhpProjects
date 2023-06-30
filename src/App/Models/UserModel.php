@@ -21,23 +21,6 @@ class UserModel extends Model
         $this->reviewModel = new GoodsReviewModel();
     }
 
-    public function checkLogin($login): bool
-    {
-        $request = $this->model->prepare("SELECT login FROM users WHERE login=:login");
-        $request->execute(['login' => $login]);
-
-        return empty($request->fetchAll());
-    }
-
-    public function checkPassword($login, $password): bool
-    {
-        $request = $this->model->prepare("SELECT password FROM users WHERE login=:login");
-        $request->execute(['login' => $login]);
-        $hash = $request->fetch()['password'];
-
-        return !password_verify($password, $hash);
-    }
-
     public function addUser($userData) 
     {
         $request = $this->model->prepare("INSERT INTO users (login, password, user_name, user_surname)
@@ -63,35 +46,31 @@ class UserModel extends Model
 
     public function getErrors()
     {
-        $this->validator->getErrors();
+        return $this->validator->getErrors(); 
     }
 
-    public function getUserId($login): int
+    public function isAuth($postData)
     {
-        $request = $this->model->prepare("SELECT id FROM users WHERE login=:login");
-        $request->execute(['login' => $login]);
+        $request = $this->model->prepare("SELECT id, login, password FROM users WHERE login=:login");
+        $request->execute(['login' => $postData['userLogin']]);
+        $userData = $request->fetch();
 
-        return $request->fetch();
-    }
-
-    public function isAuth($postData): bool
-    {
-        if ($this->checkLogin($postData['userLogin'])) {
-            return false;
+        if (empty($userData)) {
+            return null;
+        } 
+        if (!password_verify($postData['userPassword'], $userData['password'])) {
+            return null;
         }
-        if ($this->checkPassword($postData['userLogin'], $postData['userPassword'])) {
-            return false;
-        }
-        return true;
+
+        return $userData['id'];
     }
 
-    public function startSession($login)
+    public function startSession($id)
     {
-        $data = $this->getUserId($login);
-        $_SESSION["id"] = $data['id'];
+        $_SESSION["id"] = $id;
     }
 
-    public static function isCurrent(): bool
+    public function isAuthorized(): bool
     {
         return isset($_SESSION['id']);
     }
@@ -100,12 +79,25 @@ class UserModel extends Model
     {
         $isAdmin = $this->model->prepare("SELECT is_admin FROM users WHERE id=:id");
         $isAdmin->execute(['id'=>$id]);
-        if (self::isCurrent() && $isAdmin->fetch()['is_admin'] == 1) {
+        if (self::isAuthorized() && $isAdmin->fetch()['is_admin'] == 1) {
             return true;
         } else {
             return false;
         }
 
+    }
+
+    public function authorize($userData)
+    {
+        $userId = $this->isAuth($userData);
+        if ($userId) {
+            $this->startSession($userId);
+            $template = ['user/success_authorization', 'Успешно'];
+        } else {
+            $template = ['user/authorization', 'Неверный логин или пароль'];
+        }
+
+        return $template;
     }
 
     public function dieSession()
@@ -116,13 +108,13 @@ class UserModel extends Model
     public function getAdminData($postData, $page, $id): array
     {
         if ($postData) {
-            $key = array_keys($postData)[0];
-            $value = $postData[$key];
-            if ($value == "Одобрить") {
-                $this->reviewModel->allowReview($key);
+            $reviewId = $postData['id'];
+            $type = $postData['action'];
+            if ($type == "Одобрить") {
+                $this->reviewModel->allowReview($reviewId);
                 $messageData = "Комментарий одобрен";
             } else {
-                $this->reviewModel->deleteReview($key);
+                $this->reviewModel->deleteReview($reviewId);
                 $messageData = "Комментарий удален";
             }
         }

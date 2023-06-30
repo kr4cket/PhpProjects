@@ -5,18 +5,21 @@ use App\Models\GoodsModel;
 use App\Models\GoodsReviewModel;
 use App\Core\Controller;
 use App\Core\View;
+use App\Models\UserModel;
 use App\Views\HtmlView;
 
 class GoodsController extends Controller
 {
     private $model;
     private $reviews;
+    private $user;
 
     public function __construct()
     {
         parent::__construct();
         $this->model = new GoodsModel();
         $this->reviews = new GoodsReviewModel();
+        $this->user = new UserModel();
     }
 
     public function show($productId): View
@@ -29,6 +32,8 @@ class GoodsController extends Controller
             $this->template = 'not_found';
             $this->data = 'с товаром';
         }
+
+        $this->data['isAuth'] = $this->user->isAuthorized();
 
         return new HtmlView($this->template, $this->data);
     }
@@ -50,6 +55,8 @@ class GoodsController extends Controller
                 $this->template = ['goods/add_goods', 'Добавить товар'];
             }
         }
+
+        $this->data['isAuth'] = $this->user->isAuthorized();
 
         return new HtmlView($this->template, $this->data);
     }

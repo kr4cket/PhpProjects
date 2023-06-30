@@ -5,7 +5,6 @@
     $userLogin = $data['login'];
     $reviews = $data['reviews'];
     $message = $data['action'] ?? "";
-
     $paginator = new Paginator($data['pageCount'], $data['currentPage'], $data['link'] ?? []);
 ?>
 
@@ -25,8 +24,9 @@
     <h5>Отзыв</h5>
     <?=$review['review']?>
     <br>
-    <input type="submit" value="Одобрить" name=<?=$review['id']?>>
-    <input type="submit" value="Удалить" name=<?=$review['id']?>>
+    <input type="hidden" name="id" value=<?=$review['id']?>>
+    <input type="submit" value="Одобрить" name="action">
+    <input type="submit" value="Удалить" name="action">
     </form>
 <?}?>
 

@@ -2,7 +2,7 @@
     $errors = $data ?? [];
 ?>
 <? foreach ($errors as $error) {?>
-    <h6><?=$error?></h6>
+    <h4><?=$error?></h4>
     <br>
 <?}?>
 <h2>Регистрация</h2>

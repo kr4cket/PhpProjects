@@ -4,16 +4,19 @@ namespace App\Controllers;
 use App\Models\GoodsModel;
 use App\Core\Controller;
 use App\Core\View;
+use App\Models\UserModel;
 use App\Views\HtmlView;
 
 class CatalogsController extends Controller
 {
     private $model;
+    private $user;
 
     public function __construct()
     {
         parent::__construct();
         $this->model = new GoodsModel();
+        $this->user = new UserModel();
     }
 
     public function index($page=1, $orderType='', $manufacture='', 
@@ -34,9 +37,11 @@ class CatalogsController extends Controller
                 $this->template = ['catalog/catalog', 'Каталог товаров'];
             }
         } else {
-            $this->data = 'с товаром';
+            $this->data['message'] = 'с товаром';
             $this->template = ['not_found', 'Ошибка'];
         }
+
+        $this->data['isAuth'] = $this->user->isAuthorized();
 
         return new HtmlView($this->template, $this->data);
     }

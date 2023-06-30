@@ -18,6 +18,7 @@ class HtmlView extends View
         include VIEW_PATH.$this->template[0]."_view.php";
         $templateData['body'] = ob_get_contents();
         $templateData['head'] = $this->template[1];
+        $templateData['isAuth'] = $this->data['isAuth'];
         ob_end_clean();
 
         include VIEW_PATH.'layout_view.php';

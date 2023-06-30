@@ -25,12 +25,7 @@ class UserController extends Controller
         if (empty($postData)) {
             $this->template = ['user/authorization', 'Авторизация'];
         } else {
-            if ($this->model->isAuth($postData)) {
-                $this->model->startSession($postData['userLogin']);
-                $this->template = ['user/success_authorization', 'Успешно'];
-            } else {
-                $this->template = ['user/authorization', 'Неверный логин или пароль'];
-            }
+            $this->template = $this->model->authorize($postData);
         }
 
         return new HtmlView($this->template, $this->data);
@@ -62,7 +57,7 @@ class UserController extends Controller
         $sessionData = $_SESSION['id'];
         $postData = $_POST;
 
-        if (UserModel::isCurrent()) {
+        if ($this->model->isAuthorized()) {
             
             if ($this->model->isAdmin($sessionData)) {
                 $this->data = $this->model->getAdminData($postData,$page, $sessionData);
@@ -75,6 +70,8 @@ class UserController extends Controller
         } else {
             $this->template = ['user/logout'];
         }
+
+        $this->data['isAuth'] = $this->model->isAuthorized();
 
         return new HtmlView($this->template, $this->data);
     }

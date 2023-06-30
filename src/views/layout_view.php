@@ -9,7 +9,7 @@
     <header>
         <a href="/">На главную</a>
         <a href=/goods>Добавить товар</a>
-        <?if (!UserModel::isCurrent()) {?>
+        <?if (!$templateData['isAuth']) {?>
             <a href=/registration>Регистрация</a>
             <a href=/authorization>Авторизация</a>
         <?} else{?> <a href=/profile>Профиль</a>
