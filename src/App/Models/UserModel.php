@@ -21,18 +21,20 @@ class UserModel extends Model
         $this->reviewModel = new GoodsReviewModel();
     }
 
-    public function checkLogin($login)
+    public function checkLogin($login): bool
     {
         $request = $this->model->prepare("SELECT login FROM users WHERE login=:login");
         $request->execute(['login' => $login]);
+
         return empty($request->fetchAll());
     }
 
-    public function checkPassword($login, $password)
+    public function checkPassword($login, $password): bool
     {
         $request = $this->model->prepare("SELECT password FROM users WHERE login=:login");
         $request->execute(['login' => $login]);
         $hash = $request->fetch()['password'];
+
         return !password_verify($password, $hash);
     }
 
@@ -59,19 +61,20 @@ class UserModel extends Model
         return empty($this->validator->getErrors());
     }
 
-    public function getErrors() 
+    public function getErrors()
     {
         $this->validator->getErrors();
     }
 
-    public function getUserId($login)
+    public function getUserId($login): int
     {
         $request = $this->model->prepare("SELECT id FROM users WHERE login=:login");
         $request->execute(['login' => $login]);
+
         return $request->fetch();
     }
 
-    public function isAuth($postData) 
+    public function isAuth($postData): bool
     {
         if ($this->checkLogin($postData['userLogin'])) {
             return false;
@@ -88,12 +91,12 @@ class UserModel extends Model
         $_SESSION["id"] = $data['id'];
     }
 
-    public static function isCurrent()
+    public static function isCurrent(): bool
     {
         return isset($_SESSION['id']);
     }
 
-    public function isAdmin($id)
+    public function isAdmin($id): bool
     {
         $isAdmin = $this->model->prepare("SELECT is_admin FROM users WHERE id=:id");
         $isAdmin->execute(['id'=>$id]);
@@ -110,7 +113,7 @@ class UserModel extends Model
         unset($_SESSION['id']);
     }
 
-    public function getAdminData($postData, $page, $id)
+    public function getAdminData($postData, $page, $id): array
     {
         if ($postData) {
             $key = array_keys($postData)[0];
@@ -132,10 +135,11 @@ class UserModel extends Model
         return $data;
     }
 
-    public function getUserData($id)
+    public function getUserData($id): array
     {
         $request = $this->model->prepare("SELECT user_name, user_surname, login FROM users WHERE id=:id");
         $request->execute(['id'=>$id]);
+
         return $request->fetch();
     }
 

@@ -83,6 +83,7 @@ class UserController extends Controller
     {
         $this->model->dieSession();
         $this->template = ['user/logout'];
+
         return new HtmlView($this->template, $this->data);
     }
 
