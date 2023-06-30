@@ -41,6 +41,7 @@ class GoodsReviewModel extends Model
     {
         $validateData['rating'] = $this->getRadio($validateData);
         foreach ($validateData as $type => $param) {
+            
             if (array_key_exists($type, $this->paramRules)) {
                 $this->validator->validate($this->paramRules[$type], $param);
             }

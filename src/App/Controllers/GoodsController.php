@@ -45,6 +45,7 @@ class GoodsController extends Controller
             $this->data = $this->model->getFormData();
             $this->template = ['goods/add_goods', 'Добавить товар'];
         } else {
+
             if ($this->model->isValid($postData)) {
                 $this->model->addGoodData($postData);
                 $this->data = $postData['goodName'];
@@ -54,6 +55,7 @@ class GoodsController extends Controller
                 $this->data = $this->model->getFormData($postData);
                 $this->template = ['goods/add_goods', 'Добавить товар'];
             }
+            
         }
 
         $this->data['isAuth'] = $this->user->isAuthorized();

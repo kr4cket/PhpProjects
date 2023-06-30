@@ -261,6 +261,7 @@ class GoodsModel extends Model
     {
         $result = [];
         $params = [];
+
         foreach ($filterParams as $filter=>$param) {
             if (empty($param)) {
                 continue;
@@ -277,10 +278,13 @@ class GoodsModel extends Model
         if (!$this->user->isAdmin($this->userId)) {
             $result[] = "is_sold_out = 0";
         } 
+
         $result = implode(' AND ', $result);
+
         if (strlen($result) > 0) {
             $result = "WHERE ".$result;
         }
+        
         $resultArray = [
             'request'   => $result,
             'params'    => $params

@@ -35,6 +35,7 @@ class ReviewsController extends Controller
 
         if (!empty($postData)) {
             $postData['id'] = $productId;
+            
             if ($this->model->isValid($postData)) {
                 $this->model->addReview($postData);
                 $this->template = ['goods/success_review', 'Успех'];

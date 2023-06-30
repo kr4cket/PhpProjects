@@ -29,6 +29,7 @@ class CatalogsController extends Controller
                 'minPrice'          => $minPrice,
                 'maxPrice'          => $maxPrice
             ];
+
             if ($this->model->isValid($filters)) {
                 $this->data = $this->model->getPage($page, $orderType, $filters);
                 $this->template = ['catalog/catalog', 'Каталог товаров'];
@@ -36,6 +37,7 @@ class CatalogsController extends Controller
                 $this->data = $this->model->getPage($page, $orderType);
                 $this->template = ['catalog/catalog', 'Каталог товаров'];
             }
+            
         } else {
             $this->data['message'] = 'с товаром';
             $this->template = ['not_found', 'Ошибка'];

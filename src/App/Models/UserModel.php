@@ -25,6 +25,7 @@ class UserModel extends Model
     {
         $request = $this->model->prepare("INSERT INTO users (login, password, user_name, user_surname)
         VALUES (:login, :password, :user_name, :user_surname);");
+        
         $request->execute([
             'login'        => $userData['userLogin'],
             'password'     => password_hash($userData['userPassword'], PASSWORD_DEFAULT),
@@ -90,6 +91,7 @@ class UserModel extends Model
     public function authorize($userData)
     {
         $userId = $this->isAuth($userData);
+
         if ($userId) {
             $this->startSession($userId);
             $template = ['user/success_authorization', 'Успешно'];
@@ -110,6 +112,7 @@ class UserModel extends Model
         if ($postData) {
             $reviewId = $postData['id'];
             $type = $postData['action'];
+
             if ($type == "Одобрить") {
                 $this->reviewModel->allowReview($reviewId);
                 $messageData = "Комментарий одобрен";
@@ -118,6 +121,7 @@ class UserModel extends Model
                 $messageData = "Комментарий удален";
             }
         }
+
         $data = $this->getUserData($id);
         $data['reviews'] = $this->reviewModel->getReviewPage($page);
         $data['currentPage'] = $page;
