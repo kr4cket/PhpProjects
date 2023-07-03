@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Core\Model;
+use App\Models\AdditionModel;
 use App\Models\GoodsReviewModel;
 
 
-class UserModel extends Model
+class UserModel extends AdditionModel
 {
     private $reviewModel;
     private $paramRules = [
@@ -22,7 +22,7 @@ class UserModel extends Model
         $this->reviewModel = new GoodsReviewModel();
     }
 
-    public function addUser($userData)
+    public function add($userData)
     {
         $request = $this->model->prepare("INSERT INTO users (login, password, user_name, user_surname)
         VALUES (:login, :password, :user_name, :user_surname);");
@@ -123,7 +123,7 @@ class UserModel extends Model
             }
         }
 
-        $data = $this->getUserData($id);
+        $data = $this->getData($id);
         $data['reviews'] = $this->reviewModel->getReviewPage($page);
         $data['currentPage'] = $page;
         $data['pageCount'] = $this->reviewModel->getReviewCount();
@@ -132,7 +132,7 @@ class UserModel extends Model
         return $data;
     }
 
-    public function getUserData($id): array
+    public function getData($id): array
     {
         $request = $this->model->prepare("SELECT user_name, user_surname, login FROM users WHERE id=:id");
         $request->execute(['id'=>$id]);

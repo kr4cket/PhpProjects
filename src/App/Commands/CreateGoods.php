@@ -44,12 +44,12 @@ class CreateGoods extends ConsoleCommand
             $rowData['goodDescription'] = $this->generator->realText(400);
             $rowData['isSoldOut'] = mt_rand(0,1);
             $count -= 1;
-            $this->goodModel->addGoodData($rowData);
+            $this->goodModel->add($rowData);
         }
     }
 
 
-    public function getInfo(): string
+    public static function getInfo(): string
     {
         return "-cg, --create_goods [GOODS_NUM] - Заполняет базу данных товаров";
     }

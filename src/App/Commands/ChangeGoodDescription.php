@@ -17,13 +17,18 @@ class ChangeGoodDescription extends ConsoleCommand
     public function execute($id = 0, $description = ''): string
     {
         if (!empty($id)) {
-            return implode(PHP_EOL, $this->goodModel->changeDescription($id, $description));
+
+            if ($this->goodModel->changeDescription($id, $description)) {
+                return implode(PHP_EOL, $this->goodModel->getData($id));
+            }
+
+            return "Такого товара в базе нет!";
         }
 
         return $this->getInfo();
     }
 
-    public function getInfo() : string
+    public static function getInfo() : string
     {
         return "-cgd, --create_good_description [ID] [TEXT] - Изменяет описание конкретного товара";
     }

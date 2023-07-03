@@ -37,7 +37,7 @@ class GetStatistics extends ConsoleCommand
         return $this->getInfo();
     }
 
-    public function getInfo(): string
+    public static function getInfo(): string
     {
         return "-gs, --get_statistics [OPTION] - Получить информацию о сайте".
         PHP_EOL."OPTIONS".PHP_EOL."-a  - Получить всю информацию".

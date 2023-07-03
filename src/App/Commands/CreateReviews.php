@@ -47,12 +47,12 @@ class CreateReviews extends ConsoleCommand
             $rowData['rating'] = mt_rand(1,5);
             $rowData['is_active'] = mt_rand(0,1);
             $count -= 1;
-            $this->reviewModel->addReview($rowData);
+            $this->reviewModel->add($rowData);
 
         }
     }
 
-    public function getInfo(): string
+    public static function getInfo(): string
     {
         return "-cr, --create_reviews [REVIEWS_NUM] - Заполняет базу данных отзывов";
     }

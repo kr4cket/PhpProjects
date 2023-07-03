@@ -4,7 +4,7 @@ namespace App\Core;
 use \App\Core\DataBaseConnection;
 use \App\Core\Validator;
 
-class Model
+abstract class Model
 {
     protected $model;
     protected $validator;
@@ -14,4 +14,6 @@ class Model
         $this->model = DataBaseConnection::getInstance()->getConnection();
         $this->validator = Validator::getInstance();
     }
+
+    public abstract function getData(mixed $id); 
 }

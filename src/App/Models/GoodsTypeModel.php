@@ -12,7 +12,7 @@ class GoodsTypeModel extends Model
         return $data->fetch()['type_name'];
     }
 
-    public function getData(): array
+    public function getData($id = ''): array
     {
         $data = $this->model->prepare("SELECT * FROM goods_type");
         $data->execute();

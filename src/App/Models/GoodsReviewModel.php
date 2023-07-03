@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use \App\Core\Model;
+use \App\Models\AdditionModel;
 
-class GoodsReviewModel extends Model
+class GoodsReviewModel extends AdditionModel
 {
     private $pageLimit = 3;
     private $paramRules = [
@@ -40,7 +40,7 @@ class GoodsReviewModel extends Model
         return empty($this->validator->getErrors());
     }
 
-    public function getReviews($productId): array
+    public function getData($productId)
     {
         $reviewData = $this->model->prepare("SELECT * FROM goods_review WHERE goods_id=:id");
         $reviewData->execute(['id'=>$productId]);
@@ -65,13 +65,13 @@ class GoodsReviewModel extends Model
         return $count->fetch()['COUNT(*)'];
     }
 
-    public function addReview($data) 
+    public function add($data) 
     {
         $goodData = $this->model->prepare("INSERT INTO goods_review (id, goods_id, name, surname, phone_number,
         is_active, review, rating) VALUES (:id, :goods_id ,:name, :surname, :phone_number, :is_active, :review, :rating);");
         $goodData->execute([
             'id' => null,
-            'goods_id' => $data['good_id'],
+            'goods_id' => $data['id'],
             'name' => $data['name'],
             'surname' => $data['surname'],
             'phone_number' => $data['phoneNumber'],

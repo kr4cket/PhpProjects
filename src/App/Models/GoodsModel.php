@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use \App\Core\Model;
+use \App\Models\AdditionModel;
 use \App\Models\GoodsTypeModel;
 use \App\Models\GoodsManufactureModel;
 
-class GoodsModel extends Model
+class GoodsModel extends AdditionModel
 {
     private $type;
     private $manufacture;
@@ -17,9 +17,7 @@ class GoodsModel extends Model
         'goodName'          => ['isEmpty', 'minLength'],
         'typeList'          => ['isChecked'],
         'manufactureList'   => ['isChecked'],
-        'goodCost'          => ['onlyDigits', 'isEmpty', 'minLength', 'isPositiveNumber'],
-        'minPrice'          => ['onlyNumbers','isPositive'],
-        'maxPrice'          => ['onlyNumbers','isPositive', 'notZero']
+        'goodCost'          => ['onlyDigits', 'isEmpty', 'minLength', 'isPositiveNumber']
     ];
     private $orderTypes = [
         ''                      => 'id',
@@ -67,16 +65,14 @@ class GoodsModel extends Model
         return $count->fetch()['COUNT(*)'];
     }
 
-    public function changeDescription($id, $description): array
+    public function changeDescription($id, $description): bool
     {
         if ($this->existProductId($id)) {
             $request = $this->model->prepare("UPDATE goods SET description=:description WHERE id=:id");
             $request->execute(['id'=>$id, 'description'=>$description]);
-
-            return $this->getGoodData($id);
+            return true;
         }
-        
-        return ["Такого товара в базе нет!!"];
+        return false;
     }
 
     public function getPage($page = 1, $orderType = 'default', $filters = []): array
@@ -100,7 +96,7 @@ class GoodsModel extends Model
         return $pageData;
     }
 
-    public function getGoodData($id): array
+    public function getData($id)
     {
         $goodData = $this->model->prepare("SELECT * FROM goods WHERE id=:id");
         $goodData->execute(['id' => $id]);
@@ -109,7 +105,7 @@ class GoodsModel extends Model
         return $goodData;
     }
 
-    public function addGoodData($data)
+    public function add($data)
     {
         $goodData = $this->model->prepare("INSERT INTO goods (id, name, type_id, manufacture_id, price, description, is_sold_out)
         VALUES (:id ,:name, :type_id, :manufacture_id, :price, :description, :is_sold_out);");

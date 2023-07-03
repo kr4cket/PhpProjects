@@ -21,6 +21,8 @@ class HtmlView extends View
         $templateData['isAuth'] = $this->data['isAuth'];
         ob_end_clean();
 
+
+
         include VIEW_PATH.'layout_view.php';
     }
 

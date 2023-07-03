@@ -29,14 +29,16 @@ class CommandHelper extends ConsoleCommand
 
     public function execute()
     {
-        return 
-        "-cgd, --create_good_description [ID] [TEXT] - Изменяет описание конкретного товара".PHP_EOL.
-        "-cg, --create_goods [GOODS_NUM] - Заполняет базу данных товаров".PHP_EOL.
-        "-cr, --create_reviews [REVIEWS_NUM] - Заполняет базу данных отзывов".PHP_EOL.
-        "-gs, --get_statistics [OPTION] - Получить информацию о сайте";
+        $info = [];
+        foreach (self::$commands as $key => $command) {
+            if (strncmp($key, "--", 2)) {
+                $info[] = $command::getInfo();
+            }
+        }
+        return implode(PHP_EOL, $info);
     }
 
-    public function getInfo()
+    public static function getInfo()
     {
         
     }

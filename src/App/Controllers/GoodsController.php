@@ -24,9 +24,9 @@ class GoodsController extends Controller
 
     public function show($productId): View
     {
-        $this->data = $this->model->getGoodData($productId);
+        $this->data = $this->model->getData($productId);
         if ($this->data) {
-            $this->data['reviews'] = $this->reviews->getReviews($productId);
+            $this->data['reviews'] = $this->reviews->getData($productId);
             $this->template = ['goods/goods', $this->data['name']];
         } else {
             $this->template = 'not_found';
@@ -47,8 +47,8 @@ class GoodsController extends Controller
         } else {
 
             if ($this->model->isValid($postData)) {
-                $this->model->addGoodData($postData);
-                $this->data = $postData['goodName'];
+                $this->model->add($postData);
+                $this->data['goodName'] = $postData['goodName'];
                 $this->template = ['goods/success', 'Успех'];
             }
             else {

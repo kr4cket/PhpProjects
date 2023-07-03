@@ -40,7 +40,7 @@ class UserController extends Controller
         } else {
 
             if ($this->model->isValid($postData)) {
-                $this->model->addUser($postData);
+                $this->model->add($postData);
                 $this->template = ['user/success', 'Успешная регистрация!'];
             } else {
                 $this->data = $this->model->getErrors();
@@ -63,7 +63,7 @@ class UserController extends Controller
                 $this->data = $this->model->getAdminData($postData,$page, $sessionData);
                 $this->template = ['user/admin_profile', 'Админ'];
             } else {
-                $this->data = $this->model->getUserData($sessionData);
+                $this->data = $this->model->getData($sessionData);
                 $this->template = ['user/user_profile', 'Профиль'];
             }
         
