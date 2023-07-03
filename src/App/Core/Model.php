@@ -12,7 +12,6 @@ abstract class Model
     public function __construct()
     {
         $this->model = DataBaseConnection::getInstance()->getConnection();
-        $this->validator = Validator::getInstance();
     }
 
     public abstract function getData(mixed $id); 

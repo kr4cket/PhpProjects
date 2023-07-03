@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use \App\Models\AdditionModel;
+use App\Validators\ReviewValidator;
 
 class GoodsReviewModel extends AdditionModel
 {
@@ -13,6 +14,11 @@ class GoodsReviewModel extends AdditionModel
         'phoneNumber' => ['isPhoneNumber', 'isEmpty'],
         'rating' => ['isChecked']
     ];
+
+    public function __construct()
+    {
+        $this->validator = ReviewValidator::getInstance();
+    }
 
     public function getFormData($postData=[]): array
     {

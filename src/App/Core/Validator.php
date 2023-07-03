@@ -4,14 +4,13 @@ namespace App\Core;
 
     class Validator
     {
-        protected static $instance;
+        private static $instance;
         protected $paramErrors = [];
         protected $customRules = [];
 
         private function __construct()
         {
-            $parentMethods = ['onlyDigits', 'isEmpty', 'isLetter', 'minLength',
-            'isPositiveNumber', 'isChecked','isPhoneNumber', 'isPositive', 'onlyNumbers'];
+            $parentMethods = ['onlyDigits', 'isEmpty', 'isLetter'];
             foreach($parentMethods as $method) {
                 $this->customRules[$method] = [$this, $method];
             }
@@ -51,34 +50,6 @@ namespace App\Core;
             }
         }
 
-        protected function isChecked($userInput)
-        {
-            if ($userInput <= 0) {
-                return "Поле не выбрано!\n";
-            }
-        }
-
-        protected function isPositiveNumber($userInput)
-        {
-            if ($userInput < 1000) {
-                return "Минимальная цена товара должна быть больше 1000 рублей!\n";
-            }
-        }
-
-        protected function isPositive($userInput)
-        {
-            if ($userInput < 0 && !empty($userInput)) {
-                return "Поле с отрицательным числом!!!";
-            }
-        }
-
-        protected function onlyNumbers($userInput)
-        {
-            if (!preg_match("/[\d]+/", $userInput) && !empty($userInput)) {
-                return "Поле введено некорректно!\n";
-            }
-        }
-
         protected function isEmpty($userInput)
         {
             if (empty($userInput)) {
@@ -92,21 +63,7 @@ namespace App\Core;
                 return "Поле должно содержать только буквы!\n";
             }
         }
-
-        protected function isPhoneNumber($userInput)
-        {
-            if (!preg_match('~^(?:\+7|8)\d{10}$~', $userInput)) {
-                return "Поле введено некорректно!\n";
-            }
-        }
-
-        protected function minLength($userInput)
-        {
-            if (strlen($userInput) < 6) {
-                return "Поле должно быть длиннее 6 символов!\n";
-            }
-        }
-
+        
         public function getErrors()
         {
             if (isset($this->paramErrors)) {

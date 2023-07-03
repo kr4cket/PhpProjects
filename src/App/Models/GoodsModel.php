@@ -5,6 +5,7 @@ namespace App\Models;
 use \App\Models\AdditionModel;
 use \App\Models\GoodsTypeModel;
 use \App\Models\GoodsManufactureModel;
+use App\Validators\GoodsValidator;
 
 class GoodsModel extends AdditionModel
 {
@@ -13,11 +14,11 @@ class GoodsModel extends AdditionModel
     private $user;
     private $userId;
     const PAGE_SIZE = 20;
-    private $paramRules = [
+    private $goodsParamRules = [
         'goodName'          => ['isEmpty', 'minLength'],
         'typeList'          => ['isChecked'],
         'manufactureList'   => ['isChecked'],
-        'goodCost'          => ['onlyDigits', 'isEmpty', 'minLength', 'isPositiveNumber']
+        'goodCost'          => ['onlyDigits', 'isEmpty', 'minLength', 'minCost']
     ];
     private $orderTypes = [
         ''                      => 'id',
@@ -34,6 +35,7 @@ class GoodsModel extends AdditionModel
         $this->manufacture = new GoodsManufactureModel();
         $this->user = new UserModel();
         $this->userId = $_SESSION['id'] ?? null;
+        $this->validator = GoodsValidator::getInstance();
     }
 
     public function checkId($id): bool
@@ -123,8 +125,8 @@ class GoodsModel extends AdditionModel
     public function isValid($validateData): bool
     {
         foreach ($validateData as $type => $param) {
-            if (array_key_exists($type, $this->paramRules)) {
-                $this->validator->validate($this->paramRules[$type], $param);
+            if (array_key_exists($type, $this->goodsParamRules)) {
+                $this->validator->validate($this->goodsParamRules[$type], $param);
             }
         }
 

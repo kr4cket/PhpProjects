@@ -4,7 +4,7 @@ namespace App\Models;
 
 use App\Models\AdditionModel;
 use App\Models\GoodsReviewModel;
-
+use App\Validators\UserValidator;
 
 class UserModel extends AdditionModel
 {
@@ -20,6 +20,7 @@ class UserModel extends AdditionModel
     {
         parent::__construct();
         $this->reviewModel = new GoodsReviewModel();
+        $this->validator = UserValidator::getInstance();
     }
 
     public function add($userData)
