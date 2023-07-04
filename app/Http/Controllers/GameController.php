@@ -2,32 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\GameResource;
 use App\Models\Game;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
-    private $model;
-
-    public function __construct()
+    public function start(Game $model)
     {
-        $this->model = new Game();
-    }
+        
+        $game = $model->newGame();
 
-    public function start()
-    {
-        $gameData = [];
-        $success = $this->model->createNewRecord();
+        if ($game) {
+            return response()->json(GameResource::make($game));
+        } 
 
-        if ($success) {
-            $gameData = $this->model->getData();
-        } else {
-            $gameData = $this->model->getErrorData();
-        }
-
-        $gameData['success'] = $success;
-
-        return response()->json($gameData);
+        return response()->json([
+            'success'   => false,
+            'error'     => 101,
+            'message'   => "Не удалось создать игру"
+        ]);
     }
 
 
