@@ -13,5 +13,9 @@ use \App\Http\Controllers\GameController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::post('/start',[GameController::class,'start'] );
+
+Route::middleware(['cors'])->group(function () {
+    Route::post('/start',[GameController::class,'start']);
+    Route::post('/status/{id}/{code}',[GameController::class,'status']);
+});
 
