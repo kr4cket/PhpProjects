@@ -15,7 +15,20 @@ class Player extends Model
 
     public function addPlayers($firstPlayer, $secondPlayer)
     {
-        $this->create(['id' => $firstPlayer],['id' => $secondPlayer]);
+        $this->create(['id' => $firstPlayer]);
+        $this->create(['id' => $secondPlayer]);
+    }
+
+    public function getTurn($id)
+    {
+        $turn = $this->select('my_turn')->where("id", "=", $id)->first();
+        return $turn['my_turn'];
+    }
+    
+    public function getReady($id)
+    {
+        $ready = $this->select('me_ready')->where("id", "=", $id)->first();
+        return $ready['me_ready'];
     }
 
 }

@@ -34,7 +34,7 @@ class Game extends Model
         return bin2hex(random_bytes(5));
     }
 
-    public function getGameInfo($id, $code, ShipInSea $sea, Shot $shots)
+    public function getGameInfo($id, $code, ShipInSea $sea, Shot $shots, Player $player)
     {
         $info = [
             'game' => [
@@ -46,19 +46,22 @@ class Game extends Model
         $playerCode = $game['code'];
 
         if ($code == $playerCode) {
-            $info['game']['invite'] = $game['invite'];
-            $field = $sea->getFields($code, $game['invite'], $shots);
+            $me = $code;
+            $enemy = $game['invite'];
         } else {
-            $info['game']['invite'] = $game['code'];
-            $field = $sea->getFields($code, $game['code'], $shots);
+            $me = $code;
+            $enemy = $game['code'];
         }
+
+        $field = $sea->getFields($me, $enemy, $shots);
         
+        $info['game']['invite'] = $enemy;
         $info['fieldMy'] = $field['fieldMy'];
         $info['fieldEnemy'] = $field['fieldEnemy'];
-        $info['game']['myTurn'] = false;
-        $info['game']['meReady'] = true;
+        $info['game']['myTurn'] = boolval($player->getTurn($me));
+        $info['game']['meReady'] = boolval($player->getReady($me));
         $info['success'] = true;
-        $info['usedPlaces'] = [];
+        $info['usedPlaces'] = $sea->getPlacedShips($code) ?? [];
 
         return $info;
     }

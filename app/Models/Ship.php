@@ -17,7 +17,11 @@ class Ship extends Model
     public static function getName($id)
     {
         $ship = self::getShipById($id);
-        print_r($ship);
         return $ship['name'];
+    }
+
+    public static function getShipByName($name)
+    {
+        return self::where('name', '=', $name)->first();
     }
 }

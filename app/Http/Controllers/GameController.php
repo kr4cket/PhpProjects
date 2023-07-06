@@ -29,9 +29,9 @@ class GameController extends Controller
         ]);
     }
 
-    public function status($id, $code, Game $model, ShipInSea $field, Shot $shots)
+    public function status($id, $code, Game $model, ShipInSea $field, Shot $shots, Player $player)
     {
-        $info = $model->getGameInfo($id, $code, $field, $shots);
+        $info = $model->getGameInfo($id, $code, $field, $shots, $player);
         if ($info) {
             return response()->json($info);
         }
