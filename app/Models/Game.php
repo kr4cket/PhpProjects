@@ -66,4 +66,20 @@ class Game extends Model
         return $info;
     }
 
+    public function getReady($id, $code, Player $player)
+    {
+        $data = [];
+        $game = $this->where('id', '=', $id)->first();
+
+        $playerCode = $game['code'];
+        $enemy = ($code == $playerCode) ? $game['invite'] : $game['code'];
+
+        $data['enemyReady'] = boolval($player->getReady($enemy));
+        $data['success'] = !empty($data) ? true : false;
+
+        $player->setReady($code);
+
+        return $data;
+    }
+
 }

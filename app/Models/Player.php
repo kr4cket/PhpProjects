@@ -31,4 +31,9 @@ class Player extends Model
         return $ready['me_ready'];
     }
 
+    public function setReady($id) 
+    {
+        $this->where("id", "=", $id)->update(['me_ready' => 1]);
+    }
+
 }

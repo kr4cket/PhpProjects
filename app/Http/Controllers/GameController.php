@@ -43,4 +43,19 @@ class GameController extends Controller
         ]);
     }
 
+    public function ready($id, $code, Game $model, Player $player)
+    {
+        $data = $model->getReady($id, $code, $player);
+
+        if($data['success']) {
+            return response()->json($data);
+        }
+
+        return response()->json([
+            'success'   => false,
+            'error'     => 105,
+            'message'   => "Ошибка подключения"
+        ]);
+    }
+
 }

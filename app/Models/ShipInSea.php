@@ -35,8 +35,8 @@ class ShipInSea extends Model
         $enemyShips = $this->select('*')->where('player_id', '=', $enemy)->get();
         $myShots = $shots->select('*')->where('player_id', '=', $me)->get();
 
-        $field['fieldMy'] = $this->getField($myShips, $enemyShots);
-        $field['fieldEnemy'] = $this->getField($enemyShips, $myShots);
+        $field['fieldMy'] = $this->getField($myShips, $enemyShots, false);
+        $field['fieldEnemy'] = $this->getField($enemyShips, $myShots , true);
 
         return $field;
     }
@@ -44,22 +44,22 @@ class ShipInSea extends Model
     public function getMyField($me) 
     {
         $myShips = $this->select('*')->where('player_id', '=', $me)->get();
-        $field = $this->getField($myShips, []);
+        $field = $this->getField($myShips, [], true);
         return $field;
     }
 
-    private function getField($ships, $shots)
+    private function getField($ships, $shots, $isEnemy)
     {
         $userField = $this->field;
         foreach ($ships as $ship) {
-            $this->createShip($ship, $userField);
+            $this->createShip($ship, $userField, $isEnemy);
         }
-        $this->createShots($shots, $userField);
+        $this->createShots($shots, $userField, $isEnemy);
 
         return $userField;
     }
 
-    private function createShip($ship, &$field)
+    private function createShip($ship, &$field, $isEnemy)
     {
         $name = Ship::getName($ship['ship_id']);
         $length = $name[0];
@@ -69,7 +69,11 @@ class ShipInSea extends Model
             $static = $ship['x_coord'];
 
             for ($cell = $begin; $cell < $begin + $length; $cell++){
-                $field[$static][$cell] = [$name, 0];
+                if ($isEnemy) {
+                    $field[$static][$cell] = ['hidden', 0];
+                } else {
+                    $field[$static][$cell] = [$name, 0];
+                }
             }
             
         } else {
@@ -78,7 +82,11 @@ class ShipInSea extends Model
             $static = $ship['y_coord'];
 
             for ($cell = $begin; $cell < $begin + $length; $cell++){
-                $field[$cell][$static] = [$name, 0];
+                if ($isEnemy) {
+                    $field[$cell][$static] = ['hidden', 0];
+                } else {
+                    $field[$cell][$static] = [$name, 0];
+                }
             }
         }
 
