@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use LengthException;
 
 class ShipInSea extends Model
 {
@@ -27,69 +26,191 @@ class ShipInSea extends Model
         [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
     ];
 
-    public function getFields($me, $enemy, Shot $shots)
+
+    public function getMyField($player) 
     {
-        $myShips = $this->select('*')->where('player_id', '=', $me)->get();
-        $enemyShots = $shots->select('*')->where('player_id', '=', $enemy)->get();
-
-        $enemyShips = $this->select('*')->where('player_id', '=', $enemy)->get();
-        $myShots = $shots->select('*')->where('player_id', '=', $me)->get();
-
-        $field['fieldMy'] = $this->getField($myShips, $enemyShots, false);
-        $field['fieldEnemy'] = $this->getField($enemyShips, $myShots , true);
+        $myShips = $player->ships;
+        $field = $this->getField($myShips, [], false);
 
         return $field;
     }
 
-    public function getMyField($me) 
-    {
-        $myShips = $this->select('*')->where('player_id', '=', $me)->get();
-        $field = $this->getField($myShips, [], true);
-        return $field;
-    }
-
-    private function getField($ships, $shots, $isEnemy)
+    public function getField($ships, $shots, $isEnemy)
     {
         $userField = $this->field;
+        $this->createShots($shots, $userField, $isEnemy);
+
         foreach ($ships as $ship) {
             $this->createShip($ship, $userField, $isEnemy);
         }
-        $this->createShots($shots, $userField, $isEnemy);
 
         return $userField;
+    }
+
+    public function fieldCheckShot($ship, $shots)
+    {
+        $length = Ship::getName($ship['ship_id'])[0];
+
+        if ($ship['orientation']) {
+
+            $begin  = $ship['y_coord'];
+
+            for ($y = $begin; $y < $begin + $length; $y++) {
+                if ($y == $shots['y'] && $ship['x_coord'] == $shots['x']) {
+                    return true;
+                }
+            }
+
+        } else {
+
+            $begin = $ship['x_coord'];
+
+            for ($x = $begin; $x < $begin + $length; $x++) {
+                if ($x == $shots['x'] && $ship['y_coord'] == $shots['y']) {
+                    return true;
+                }
+            }
+
+        }
+
+        return false;
     }
 
     private function createShip($ship, &$field, $isEnemy)
     {
         $name = Ship::getName($ship['ship_id']);
         $length = $name[0];
+        $integrity = $length;
 
         if ($ship['orientation']) {
-            $begin = $ship['y_coord'];
+            
+            $begin  = $ship['y_coord'];
             $static = $ship['x_coord'];
 
-            for ($cell = $begin; $cell < $begin + $length; $cell++){
-                if ($isEnemy) {
-                    $field[$static][$cell] = ['hidden', 0];
+            for ($cell = $begin; $cell < $begin + $length; $cell++) {
+
+                if ($field[$static][$cell][1] == 1) {
+                    $integrity -= 1;
+                    $field[$static][$cell][0] = $name;
                 } else {
-                    $field[$static][$cell] = [$name, 0];
+                    $field[$static][$cell][0] = $isEnemy ? 'hidden' : $name;
                 }
+
             }
-            
+
+            if ($integrity <= 0) {
+                $this->createEdges($field, $ship, $length);
+            }
+
         } else {
 
             $begin = $ship['x_coord'];
             $static = $ship['y_coord'];
 
-            for ($cell = $begin; $cell < $begin + $length; $cell++){
-                if ($isEnemy) {
-                    $field[$cell][$static] = ['hidden', 0];
+
+            for ($cell = $begin; $cell < $begin + $length; $cell++) {
+
+                if ($field[$cell][$static][1] == 1) {
+                    $integrity -= 1;
+                    $field[$cell][$static][0] = $name;
                 } else {
-                    $field[$cell][$static] = [$name, 0];
+                    $field[$cell][$static][0] = $isEnemy ? 'hidden' : $name;
+                }
+
+            }
+
+            if ($integrity <= 0) {
+                $this->createEdges($field, $ship, $length);
+            }
+
+        }
+
+    }
+
+    private function createEdges(&$field, $ship, $length) {
+
+        if($ship['orientation']) {
+            $begin  = $ship['y_coord'];
+            $static = $ship['x_coord'];
+
+            for ($cell = $begin-1; $cell < $begin+$length+1; $cell++) {
+
+                if (isset($field[$static][$cell]) && ($cell == $begin-1 || $cell == $begin + $length)) {
+                    $field[$static][$cell][1] = 1;
+
+                    // $this->user->shots()->create([
+                    //     'player_id' => $this->user->id,
+                    //     'x_coord'   => $static,
+                    //     'y_coord'   => $cell
+                    // ]);
+                }
+
+                if (isset($field[$static-1][$cell])) {
+                    $field[$static-1][$cell][1] = 1;
+
+                    // $this->user->shots()->create([
+                    //     'player_id' => $this->user->id,
+                    //     'x_coord'   => $static-1,
+                    //     'y_coord'   => $cell
+                    // ]);
+                }
+
+                if (isset($field[$static+1][$cell])) {
+                    $field[$static+1][$cell][1] = 1;
+
+                    // $this->user->shots()->create([
+                    //     'player_id' => $this->user->id,
+                    //     'x_coord'   => $static+1,
+                    //     'y_coord'   => $cell
+                    // ]);
+                }
+            }
+
+        } else {
+            $begin = $ship['x_coord'];
+            $static = $ship['y_coord'];
+
+            for ($cell = $begin-1; $cell < $begin+$length+1; $cell++) {
+
+                if (isset($field[$cell][$static]) && ($cell == $begin-1 || $cell == $begin + $length)) {
+                    $field[$cell][$static][1] = 1;
+
+                    // $this->user->shots()->create([
+                    //     'player_id' => $this->user->id,
+                    //     'x_coord'   => $cell,
+                    //     'y_coord'   => $static
+                    // ]);
+                }
+
+                if (isset($field[$cell][$static-1])) {
+                    $field[$cell][$static-1][1] = 1;
+
+                    // $this->user->shots()->create([
+                    //         'player_id' => $this->user->id,
+                    //         'x_coord'   => $cell,
+                    //         'y_coord'   => $static-1
+                    // ]);
+                }
+
+                if (isset($field[$cell][$static+1])) {
+                    $field[$cell][$static+1][1] = 1;
+
+                    // $this->user->shots()->create([
+                    //     'player_id' => $this->user->id,
+                    //     'x_coord'   => $cell,
+                    //     'y_coord'   => $static+1
+                    // ]);
                 }
             }
         }
 
+
+
+    }
+
+    public function player()
+    {
+        return $this->belongsTo(Player::class, 'player_id', 'id');
     }
 
     private function createShots($shots, &$field)
@@ -99,23 +220,23 @@ class ShipInSea extends Model
         }
     }
 
-    public function clear($playerId)
+    public function clear($player)
     {
-        $this->where('player_id', '=', $playerId)->delete();
+        $player->ships->each(fn ($ship) => $ship->delete());
     }
 
-    public function addOneShip($ship, $code)
+    public function addOneShip($ship, $player)
     {   
         if(empty($ship['ship'])) {
             return "Не переданы обязательные параметры";
         }
 
         if (empty($ship['x']) && empty($ship['y'])) {
-            $this->deleteOneShip($ship, $code);
+            $this->deleteOneShip($ship, $player->id);
             return;
         }
 
-        $check = $this->checkPosition($ship, $code);
+        $check = $this->checkPosition($ship, $player);
 
         if (!empty($check)) {
             return $check;
@@ -123,7 +244,7 @@ class ShipInSea extends Model
 
         $this->updateOrCreate(
         [
-            'player_id'     => $code,
+            'player_id'     => $player->id,
             'ship_id'       => $this->getShipIdByName($ship['ship']),
         ],
         [
@@ -153,12 +274,6 @@ class ShipInSea extends Model
         return $ship['id'];
     }
 
-    private function getPreviousPosition($ship_id, $playerCode)
-    {
-        $coords = $this->select('x_coord', 'y_coord')->where("player_id", "=", $playerCode)->where("ship_id", "=", $ship_id)->first();
-        return $coords;
-    }
-
     public function getPlacedShips($code) 
     {
         $data = [];
@@ -174,10 +289,10 @@ class ShipInSea extends Model
         $this->where('player_id', '=', $code)->where('ship_id', '=', $this->getShipIdByName($shipData['ship']))->delete();
     }
 
-    private function checkPosition($shipData, $playerCode)
+    private function checkPosition($shipData, $player)
     {
         $length = $shipData['ship'][0];
-        $field = $this->getMyField($playerCode);
+        $field = $this->getMyField($player);
         $x = $shipData['x'];
         $y = $shipData['y'];
 
@@ -195,6 +310,7 @@ class ShipInSea extends Model
                     (isset($field[$x+1][$cell]) && ($field[$x+1][$cell][0] != 'empty' && $field[$x+1][$cell][0] != $shipData['ship'])) ||
                     (isset($field[$x][$cell])   && ($field[$x][$cell][0]   != 'empty' && $field[$x][$cell][0]   != $shipData['ship']))
                 ) {
+
                     return "Пересечение с другим кораблем";
                 }
 
@@ -208,7 +324,8 @@ class ShipInSea extends Model
                     (isset($field[$cell][$y+1]) && ($field[$cell][$y+1][0] != 'empty' && $field[$cell][$y+1][0] != $shipData['ship'])) ||
                     (isset($field[$cell][$y])   && ($field[$cell][$y][0]   != 'empty' && $field[$cell][$y][0]   != $shipData['ship']))
                 ) {
-                    return "Пересечение с другим кораблем".'  ';
+
+                    return "Пересечение с другим кораблем";
                 }
     
             }

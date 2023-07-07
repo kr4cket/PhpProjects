@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('game', function (Blueprint $table) {
+        Schema::create('games', function (Blueprint $table) {
             $table->id();
             $table->string('code');
             $table->string('invite');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('user_order');
         });
 
-        Schema::create('player', function (Blueprint $table) {
+        Schema::create('players', function (Blueprint $table) {
             $table->string('id');
             $table->boolean('me_ready');
             $table->boolean('my_turn');
@@ -69,11 +69,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('game');
-        Schema::dropIfExists('player');
+        Schema::dropIfExists('games');
+        Schema::dropIfExists('players');
         Schema::dropIfExists('messages');
         Schema::dropIfExists('ships');
-        Schema::dropIfExists('ship_in_sea');
+        Schema::dropIfExists('ships_in_sea');
         Schema::dropIfExists('shots');
     }
 };

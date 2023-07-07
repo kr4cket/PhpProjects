@@ -18,10 +18,11 @@ class GameResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $players = $this->resource->players;
         return [
             'id'        => $this->resource->id,
-            'code'      => $this->resource->code,
-            'invite'    => $this->resource->invite,
+            'code'      => $players[0]->id,
+            'invite'    => $players[1]->id,
             'success'   => true
         ];
     }

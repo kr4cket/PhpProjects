@@ -8,30 +8,19 @@ use App\Models\Game;
 use App\Models\Player;
 use App\Models\ShipInSea;
 use App\Models\Shot;
+use App\Services\GameService;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
 {
-    public function start(Game $model, Player $player)
+    public function start(GameService $service)
     {
-        
-        $game = $model->newGame();
-
-        if ($game) {
-            $player->addPlayers($game['code'], $game['invite']);
-            return response()->json(GameResource::make($game));
-        } 
-
-        return response()->json([
-            'success'   => false,
-            'error'     => 101,
-            'message'   => "Не удалось создать игру"
-        ]);
+        return $service->createNewGame();
     }
 
-    public function status($id, $code, Game $model, ShipInSea $field, Shot $shots, Player $player)
+    public function status(Game $id, Player $code, GameService $service)
     {
-        $info = $model->getGameInfo($id, $code, $field, $shots, $player);
+        $info = $service->getInfo($code, $id);
         if ($info) {
             return response()->json($info);
         }
@@ -43,9 +32,9 @@ class GameController extends Controller
         ]);
     }
 
-    public function ready($id, $code, Game $model, Player $player)
+    public function ready(Game $id, Player $code, GameService $service)
     {
-        $data = $model->getReady($id, $code, $player);
+       $data = $service->getReady($id, $code);
 
         if($data['success']) {
             return response()->json($data);

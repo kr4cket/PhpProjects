@@ -10,30 +10,40 @@ class Player extends Model
     use HasFactory;
 
     protected $keyType = 'string';
-    protected $fillable = ['id', 'me_ready', 'my_turn'];
+    protected $fillable = ['id', 'game_id','me_ready', 'my_turn'];
     public $timestamps = false;
 
-    public function addPlayers($firstPlayer, $secondPlayer)
+    public function addPlayer(string $player, int $game)
     {
-        $this->create(['id' => $firstPlayer]);
-        $this->create(['id' => $secondPlayer]);
+        $this->create([
+            'id'        => $player, 
+            'game_id'   => $game
+        ]);
     }
 
-    public function getTurn($id)
+    public function updateShotsData($shotData) 
     {
-        $turn = $this->select('my_turn')->where("id", "=", $id)->first();
-        return $turn['my_turn'];
-    }
-    
-    public function getReady($id)
-    {
-        $ready = $this->select('me_ready')->where("id", "=", $id)->first();
-        return $ready['me_ready'];
+        $this->shots()->create([
+            'player_id' => $this->id,
+            'x_coord' => $shotData['x'],
+            'y_coord' => $shotData['y']
+        ]);
+        
     }
 
-    public function setReady($id) 
+    public function ships()
     {
-        $this->where("id", "=", $id)->update(['me_ready' => 1]);
+        return $this->hasMany(ShipInSea::class, 'player_id');
+    }
+
+    public function shots()
+    {
+        return $this->hasMany(Shot::class, 'player_id');
+    }
+
+    public function game()
+    {
+        return $this->belongsTo(Game::class);
     }
 
 }

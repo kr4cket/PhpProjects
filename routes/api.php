@@ -23,5 +23,6 @@ Route::middleware(['cors'])->group(function () {
     Route::post('/place-ship/{id}/{code}',[ShipInSeaController::class,'place']);
     Route::post('/clear-field/{id}/{code}',[ShipInSeaController::class,'clear']);
     Route::post('/ready/{id}/{code}',[GameController::class,'ready']);
+    Route::post('/shot/{id}/{code}',[ShipInSeaController::class,'shot']);
 });
 

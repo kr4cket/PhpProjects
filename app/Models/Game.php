@@ -10,76 +10,48 @@ class Game extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['code', 'invite', 'status', 'user_order'];
+    protected $fillable = ['code','user_order', 'user_order'];
     public $timestamps = false;
+    private $playerColumn = 'code';
     const BEGIN = 1;
     const IN_PROCESS = 2;
     const END = 3;
 
-    public function newGame()
+    public function newGame(): object
     {
         $game = $this->create([
-            'code'          => $this->generateCode(),
-            'invite'        => $this->generateCode(),
             'status'        => self::BEGIN,
             'user_order'    => ''
         ]);
 
         return $game;
-
     }
 
-    private function generateCode()
+    public function startGame()
     {
-        return bin2hex(random_bytes(5));
+        $player = $this->players->random();
+        $player->my_turn = 1;
+        $this->status = self::IN_PROCESS;
+        $this->user_order = $player->id;
+        $player->save();
+        $this->save();
     }
 
-    public function getGameInfo($id, $code, ShipInSea $sea, Shot $shots, Player $player)
+    public function endGame()
     {
-        $info = [
-            'game' => [
-                'id' => $id
-            ]
-        ];
-        
-        $game = $this->where('id', '=', $id)->first();
-        $playerCode = $game['code'];
-
-        if ($code == $playerCode) {
-            $me = $code;
-            $enemy = $game['invite'];
-        } else {
-            $me = $code;
-            $enemy = $game['code'];
-        }
-
-        $field = $sea->getFields($me, $enemy, $shots);
-        
-        $info['game']['invite'] = $enemy;
-        $info['fieldMy'] = $field['fieldMy'];
-        $info['fieldEnemy'] = $field['fieldEnemy'];
-        $info['game']['myTurn'] = boolval($player->getTurn($me));
-        $info['game']['meReady'] = boolval($player->getReady($me));
-        $info['success'] = true;
-        $info['usedPlaces'] = $sea->getPlacedShips($code) ?? [];
-
-        return $info;
+        $this->status = self::END;
+        $this->save();
     }
 
-    public function getReady($id, $code, Player $player)
+    public function enemyColumn(string $columnName)
     {
-        $data = [];
-        $game = $this->where('id', '=', $id)->first();
-
-        $playerCode = $game['code'];
-        $enemy = ($code == $playerCode) ? $game['invite'] : $game['code'];
-
-        $data['enemyReady'] = boolval($player->getReady($enemy));
-        $data['success'] = !empty($data) ? true : false;
-
-        $player->setReady($code);
-
-        return $data;
+        $this->playerColumn = $columnName;
     }
+
+    public function players()
+    {
+        return $this->hasMany(Player::class, 'game_id');
+    }    
+
 
 }
