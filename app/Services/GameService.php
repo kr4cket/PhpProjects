@@ -6,6 +6,7 @@ namespace App\Services;
 use App\Models\Game;
 use App\Models\Message;
 use App\Models\Player;
+use App\Models\Ship;
 use App\Models\ShipInSea;
 use App\Http\Resources\GameResource;
 use Illuminate\Http\Request;
@@ -116,7 +117,7 @@ class GameService
     public function isShipsPlaced(Player $player)
     {
 
-        if ($player->ships->count() != 10)
+        if ($player->ships->count() != Ship::count())
         {
             return false;
         }

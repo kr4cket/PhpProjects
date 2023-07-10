@@ -36,7 +36,7 @@ class GameController extends Controller
     public function ready(Game $game, Player $player, GameService $service)
     {
 
-        if ($service->isShipsPlaced($player)) {
+        if ($service->isShipsPlaced($player) && $game->status == Game::BEGIN) {
 
             $data = $service->getReady($game, $player);
             if ($data['success']) {
@@ -48,7 +48,7 @@ class GameController extends Controller
         return response()->json([
             'success'   => false,
             'error'     => 105,
-            'message'   => "На поле должны быть установлены все корабли!"
+            'message'   => "Ошибка!"
         ]);
     }
 

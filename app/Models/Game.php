@@ -33,6 +33,11 @@ class Game extends Model
     const IN_PROCESS = 2;
     const END = 3;
 
+
+    public function players()
+    {
+        return $this->hasMany(Player::class, 'game_id');
+    }
     public function newGame(): object
     {
         $game = $this->create([
@@ -63,11 +68,6 @@ class Game extends Model
     {
         $players = $this->players;
         return $player->id == $players[0]->id ? $players[1] : $players[0];
-    }
-
-    public function players()
-    {
-        return $this->hasMany(Player::class, 'game_id');
     }
 
 

@@ -42,6 +42,20 @@ class Player extends Model
     protected $fillable = ['id', 'game_id','me_ready', 'my_turn'];
     public $timestamps = false;
 
+    public function ships()
+    {
+        return $this->hasMany(ShipInSea::class, 'player_id');
+    }
+
+    public function shots()
+    {
+        return $this->hasMany(Shot::class, 'player_id');
+    }
+
+    public function game()
+    {
+        return $this->belongsTo(Game::class);
+    }
     public function addPlayer(int $game)
     {
         $this->create([
@@ -60,20 +74,7 @@ class Player extends Model
 
     }
 
-    public function ships()
-    {
-        return $this->hasMany(ShipInSea::class, 'player_id');
-    }
 
-    public function shots()
-    {
-        return $this->hasMany(Shot::class, 'player_id');
-    }
-
-    public function game()
-    {
-        return $this->belongsTo(Game::class);
-    }
 
     public function messages()
     {

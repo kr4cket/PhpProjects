@@ -15,12 +15,18 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Ship query()
  * @method static \Illuminate\Database\Eloquent\Builder|Ship whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Ship whereName($value)
+ * @property-read \App\Models\ShipInSea|null $shipInSea
  * @mixin \Eloquent
  */
 class Ship extends Model
 {
     use HasFactory;
 
+
+    public function shipInSea()
+    {
+        return $this->hasOne(ShipInSea::class, 'ship_id');
+    }
     public static function getShipById($id)
     {
         return self::where('id', '=', $id)->first();
@@ -42,8 +48,5 @@ class Ship extends Model
         return self::where('name', '=', $name)->first();
     }
 
-    public function shipInSea()
-    {
-        return $this->hasOne(ShipInSea::class, 'ship_id');
-    }
+
 }

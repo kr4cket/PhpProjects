@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereShipId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereXCoord($value)
  * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereYCoord($value)
+ * @property-read \App\Models\Ship $ship
  * @mixin \Eloquent
  */
 class ShipInSea extends Model
@@ -36,6 +37,10 @@ class ShipInSea extends Model
     public $timestamps = false;
     const VERTICAL = '1';
 
+    public function player()
+    {
+        return $this->belongsTo(Player::class, 'player_id', 'id');
+    }
     private function getEmptyField()
     {
         return array_fill(0, 10, array_fill(0,10, ['empty', 0]));
@@ -130,86 +135,40 @@ class ShipInSea extends Model
 
         if($ship->orientation == self::VERTICAL) {
             $begin  = $ship->y_coord;
-            $static = $ship->x_coord;
-
-            for ($cell = $begin-1; $cell < $begin+$length+1; $cell++) {
-
-                if (isset($field[$static][$cell]) && ($cell == $begin-1 || $cell == $begin + $length)) {
-                    $field[$static][$cell][1] = 1;
-
-                    $enemy->shots()->create([
-                         'player_id' => $ship->player->id,
-                         'x_coord'   => $static,
-                         'y_coord'   => $cell
-                     ]);
-                }
-
-                if (isset($field[$static-1][$cell])) {
-                    $field[$static-1][$cell][1] = 1;
-
-                    $enemy->shots()->create([
-                         'player_id' => $ship->player->id,
-                         'x_coord'   => $static-1,
-                         'y_coord'   => $cell
-                     ]);
-                }
-
-                if (isset($field[$static+1][$cell])) {
-                    $field[$static+1][$cell][1] = 1;
-
-                    $enemy->shots()->create([
-                         'player_id' => $ship->player->id,
-                         'x_coord'   => $static+1,
-                         'y_coord'   => $cell
-                     ]);
-                }
-            }
-
+            $edges = $ship->x_coord;
         } else {
             $begin = $ship->x_coord;
-            $static = $ship->y_coord;
-
-            for ($cell = $begin-1; $cell < $begin+$length+1; $cell++) {
-
-                if (isset($field[$cell][$static]) && ($cell == $begin-1 || $cell == $begin + $length)) {
-                    $field[$cell][$static][1] = 1;
-
-                    $enemy->shots()->create([
-                         'player_id' => $ship->player->id,
-                         'x_coord'   => $cell,
-                         'y_coord'   => $static
-                     ]);
-                }
-
-                if (isset($field[$cell][$static-1])) {
-                    $field[$cell][$static-1][1] = 1;
-
-                    $enemy->shots()->create([
-                             'player_id' => $ship->player->id,
-                             'x_coord'   => $cell,
-                             'y_coord'   => $static-1
-                     ]);
-                }
-
-                if (isset($field[$cell][$static+1])) {
-                    $field[$cell][$static+1][1] = 1;
-
-                    $enemy->shots()->create([
-                         'player_id' => $ship->player->id,
-                         'x_coord'   => $cell,
-                         'y_coord'   => $static+1
-                     ]);
-                }
-            }
+            $edges = $ship->y_coord;
         }
 
+        for ($edge = $edges - 1; $edge < $edges+2; $edge++) {
 
+            for ($cell = $begin - 1; $cell < $length+$begin+1; $cell++) {
 
+                if($ship->orientation == self::VERTICAL) {
+                    $y = $cell;
+                    $x = $edge;
+                } else {
+                    $x = $cell;
+                    $y = $edge;
+                }
+
+                if (isset($field[$x][$y]) && $field[$x][$y][1] == 0) {
+                    $field[$x][$y][1] = 1;
+                    $this->addShot($x, $y, $enemy);
+                }
+            }
+
+        }
     }
 
-    public function player()
+    private function addShot($x, $y, $player)
     {
-        return $this->belongsTo(Player::class, 'player_id', 'id');
+        $player->shots()->create([
+            'player_id' => $player->id,
+            'x_coord'   => $x,
+            'y_coord'   => $y
+        ]);
     }
 
     private function createShots($shots, &$field)

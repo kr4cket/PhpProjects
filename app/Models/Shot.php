@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Shot wherePlayerId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Shot whereXCoord($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Shot whereYCoord($value)
+ * @property string $id
+ * @method static \Illuminate\Database\Eloquent\Builder|Shot whereId($value)
  * @mixin \Eloquent
  */
 class Shot extends Model

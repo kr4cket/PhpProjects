@@ -15,7 +15,7 @@ class ShipInSeaController extends Controller
     {
         $error = 'Вы уже объявили о своей готовности!';
 
-        if ($game->status == 1 && $player->me_ready == 0) {
+        if ($game->status == Game::BEGIN && $player->me_ready == 0) {
 
             $postData = $request->post();
             $error = $service->placeShips($postData, $player);
@@ -41,7 +41,7 @@ class ShipInSeaController extends Controller
     {
         $message = "Невозможно выстрелить!";
 
-        if ($game->status > 1) {
+        if ($game->status == $game::IN_PROCESS) {
             $data = $request->post();
             $response = $service->makeShot($game, $player, $data);
 
