@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use \App\Http\Controllers\GameController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ShipInSeaController;
 
 /*
@@ -24,5 +25,7 @@ Route::middleware(['cors'])->group(function () {
     Route::post('/clear-field/{id}/{code}',[ShipInSeaController::class,'clear']);
     Route::post('/ready/{id}/{code}',[GameController::class,'ready']);
     Route::post('/shot/{id}/{code}',[ShipInSeaController::class,'shot']);
+    Route::post('/chat-send/{id}/{code}', [MessageController::class, 'send']);
+    Route::get('/chat-load/{id}/{code}', [MessageController::class, 'get']);
 });
 

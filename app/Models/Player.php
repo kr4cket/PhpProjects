@@ -46,4 +46,9 @@ class Player extends Model
         return $this->belongsTo(Game::class);
     }
 
+    public function messages()
+    {
+        return $this->hasMany(Message::class, 'player_id');
+    }
+
 }

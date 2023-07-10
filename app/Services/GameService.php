@@ -16,14 +16,12 @@ class GameService
     private $player;
     private $game;
     private $field;
-    private $messages;
 
-    public function __construct(Player $player, Game $game, ShipInSea $ships, Message $messages)
+    public function __construct(Player $player, Game $game, ShipInSea $ships)
     {
         $this->game = $game;
         $this->player = $player;
         $this->field = $ships;
-        $this->messages = $messages;
     }
 
     public function createNewGame()
