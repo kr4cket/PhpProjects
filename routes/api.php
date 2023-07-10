@@ -18,14 +18,14 @@ use App\Http\Controllers\ShipInSeaController;
 */
 
 Route::middleware(['cors'])->group(function () {
-    
+
     Route::post('/start',[GameController::class,'start']);
-    Route::post('/status/{id}/{code}',[GameController::class,'status']);
-    Route::post('/place-ship/{id}/{code}',[ShipInSeaController::class,'place']);
-    Route::post('/clear-field/{id}/{code}',[ShipInSeaController::class,'clear']);
-    Route::post('/ready/{id}/{code}',[GameController::class,'ready']);
-    Route::post('/shot/{id}/{code}',[ShipInSeaController::class,'shot']);
-    Route::post('/chat-send/{id}/{code}', [MessageController::class, 'send']);
-    Route::get('/chat-load/{id}/{code}', [MessageController::class, 'get']);
+    Route::post('/status/{game}/{player}',[GameController::class,'status']);
+    Route::post('/place-ship/{game}/{player}',[ShipInSeaController::class,'place']);
+    Route::post('/clear-field/{game}/{player}',[ShipInSeaController::class,'clear']);
+    Route::post('/ready/{game}/{player}',[GameController::class,'ready']);
+    Route::post('/shot/{game}/{player}',[ShipInSeaController::class,'shot']);
+    Route::post('/chat-send/{game}/{player}', [MessageController::class, 'send']);
+    Route::get('/chat-load/{game}/{player}', [MessageController::class, 'get']);
 });
 

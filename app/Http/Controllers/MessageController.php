@@ -9,11 +9,11 @@ use App\Services\MessageService;
 
 class MessageController extends Controller
 {
-    
-    public function get(MessageService $chat, Game $id, Player $code, Request $request)
+
+    public function get(MessageService $chat, Game $game, Player $player, Request $request)
     {
         $lastTime = $request->get('lastTime');
-        $data = $chat->getMessages($id, $code, $lastTime);
+        $data = $chat->getMessages($game, $player, $lastTime);
 
         if ($data || $lastTime == 'false') {
             return response()->json([
@@ -30,10 +30,10 @@ class MessageController extends Controller
         ]);
     }
 
-    public function send(MessageService $chat, Game $id, Player $code, Request $request)
+    public function send(MessageService $chat, Game $game, Player $player, Request $request)
     {
         $message = $request->post();
-        $errors = $chat->sendMessage($code, $message['message']);
+        $errors = $chat->sendMessage($player, $message['message']);
 
         if ($errors) {
             return response()->json([

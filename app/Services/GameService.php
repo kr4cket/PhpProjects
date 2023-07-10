@@ -33,21 +33,23 @@ class GameService
         $this->createNewPlayer($game->id);
 
         if(isset($game)) {
-            return response()->json(GameResource::make($game));
+
+            return GameResource::make($game);
+
         }
-        return response()->json([
+
+        return [
             'success'   => false,
             'error'     => 101,
             'message'   => "Не удалось создать игру"
-        ]);
+        ];
 
     }
 
-    public function getInfo(Player $player, Game $game)
+    public function getInfo(Player $player, Game $game): array
     {
         $info = [];
-        $players = $game->players;
-        $enemy = $player->id == $players[0]->id ? $players[1] : $players[0];
+        $enemy = $game->getEnemy($player);
 
         $info = [
             'game' => [
@@ -61,7 +63,7 @@ class GameService
 
         $info['fieldMy']    = $this->field->getField($player->ships, $enemy->shots,  false);
         $info['fieldEnemy'] = $this->field->getField($enemy->ships, $player->shots, true);
-        $info['usedPlaces'] = $this->field->getPlacedShips($player->id) ?? [];
+        $info['usedPlaces'] = $this->field->getPlacedShips($player->ships) ?? [];
         $info['success']    = true;
 
         return $info;
@@ -72,26 +74,28 @@ class GameService
     {
         $player->me_ready = 1;
         $player->save();
-        $players = $game->players;
-        $enemy = $player->id == $players[0]->id ? $players[1] : $players[0];
+        $enemy = $game->getEnemy($player);
 
-        if ($player->me_ready == $enemy->me_ready) {
+        if (boolval($player->me_ready) && boolval($enemy->me_ready)) {
+
             $game->startGame();
+
         }
-        
+
         return ['success' => true, 'enemyReady' => boolval($enemy->me_ready)];
     }
 
-    public function placeShips(array $postData, Player $player) 
+    public function placeShips(array $postData, Player $player)
     {
 
-        if($postData) 
+        if($postData)
         {
             if (array_key_exists('ships', $postData)) {
                 $messages = $this->field->addAllShips($postData['ships'], $player);
             } else {
                 $messages = $this->field->addOneShip($postData, $player);
             }
+
         }
 
         return $messages;
@@ -100,20 +104,30 @@ class GameService
     public function clearField(Player $player)
     {
         $this->field->clear($player);
+
         return true;
     }
 
-    private function createNewPlayer($gameId)
+    private function createNewPlayer(int $gameId)
     {
-        $playerCode = bin2hex(random_bytes(5));
-        $this->player->addPlayer($playerCode, $gameId);
+        $this->player->addPlayer($gameId);
     }
 
-    public function makeShot(Game $game, Player $player, $shotData)
+    public function isShipsPlaced(Player $player)
+    {
+
+        if ($player->ships->count() != 10)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function makeShot(Game $game, Player $player, array $shotData)
     {
         $shots = $player->shots;
-        $players = $game->players;
-        $enemy = $player->id == $players[0]->id ? $players[1] : $players[0];
+        $enemy = $game->getEnemy($player);
 
         foreach ($shots as $shot) {
             if ($shot->x_coord == $shotData['x'] && $shot->y_coord == $shotData['y']) {
@@ -122,11 +136,11 @@ class GameService
         }
 
         /*
-        Пришлось конвертировать в массив, ввиду того, что не получалось обратиться 
+        Пришлось конвертировать в массив, ввиду того, что не получалось обратиться
         к коллекции через foreach() (хотя с коллекцией выше все работает)
         */
 
-        $enemyShips = $enemy->ships->toArray();
+        $enemyShips = $enemy->ships;
         $changeOrder = true;
 
         foreach ($enemyShips as $ship) {
@@ -140,7 +154,7 @@ class GameService
         }
 
         $player->updateShotsData($shotData);
-        
+
         if($enemy->health <= 0) {
             $game->endGame();
             return true;
@@ -150,7 +164,7 @@ class GameService
             $game->user_order = $enemy->id;
             $player->my_turn = 0;
             $enemy->my_turn = 1;
-        } 
+        }
 
         $game->save();
         $player->save();

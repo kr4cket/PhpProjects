@@ -5,6 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\Ship
+ *
+ * @property int $id
+ * @property string $name
+ * @method static \Illuminate\Database\Eloquent\Builder|Ship newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Ship newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Ship query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Ship whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Ship whereName($value)
+ * @mixin \Eloquent
+ */
 class Ship extends Model
 {
     use HasFactory;
@@ -20,8 +32,18 @@ class Ship extends Model
         return $ship['name'];
     }
 
+    public function getLength()
+    {
+        return $this->name[0];
+    }
+
     public static function getShipByName($name)
     {
         return self::where('name', '=', $name)->first();
+    }
+
+    public function shipInSea()
+    {
+        return $this->hasOne(ShipInSea::class, 'ship_id');
     }
 }

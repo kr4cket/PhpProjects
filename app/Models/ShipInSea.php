@@ -2,9 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * App\Models\ShipInSea
+ *
+ * @property int $id
+ * @property string $player_id
+ * @property int $ship_id
+ * @property string $orientation
+ * @property int $x_coord
+ * @property int $y_coord
+ * @property-read \App\Models\Player $player
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereOrientation($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea wherePlayerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereShipId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereXCoord($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|ShipInSea whereYCoord($value)
+ * @mixin \Eloquent
+ */
 class ShipInSea extends Model
 {
     use HasFactory;
@@ -12,22 +34,13 @@ class ShipInSea extends Model
     protected $table = 'ships_in_sea';
     protected $fillable = ['player_id', 'ship_id', 'orientation', 'x_coord', 'y_coord'];
     public $timestamps = false;
+    const VERTICAL = '1';
 
-    private $field = [
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-        [['empty', 0], ['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0],['empty', 0]],
-    ];
-
-
-    public function getMyField($player) 
+    private function getEmptyField()
+    {
+        return array_fill(0, 10, array_fill(0,10, ['empty', 0]));
+    }
+    public function getMyField($player)
     {
         $myShips = $player->ships;
         $field = $this->getField($myShips, [], false);
@@ -35,10 +48,10 @@ class ShipInSea extends Model
         return $field;
     }
 
-    public function getField($ships, $shots, $isEnemy)
+    public function getField(Collection $ships, $playerShots, bool $isEnemy)
     {
-        $userField = $this->field;
-        $this->createShots($shots, $userField, $isEnemy);
+        $userField = $this->getEmptyField();
+        $this->createShots($playerShots, $userField, $isEnemy);
 
         foreach ($ships as $ship) {
             $this->createShip($ship, $userField, $isEnemy);
@@ -47,11 +60,11 @@ class ShipInSea extends Model
         return $userField;
     }
 
-    public function fieldCheckShot($ship, $shots)
+    public function fieldCheckShot(ShipInSea $ship, array $shots)
     {
-        $length = Ship::getName($ship['ship_id'])[0];
+        $length = $ship->ship->getLength();
 
-        if ($ship['orientation']) {
+        if ($ship->orientation == self::VERTICAL) {
 
             $begin  = $ship['y_coord'];
 
@@ -76,130 +89,116 @@ class ShipInSea extends Model
         return false;
     }
 
-    private function createShip($ship, &$field, $isEnemy)
+    private function createShip(ShipInSea $ship, &$field, $isEnemy)
     {
-        $name = Ship::getName($ship['ship_id']);
-        $length = $name[0];
+        $name = $ship->ship->name;
+        $length = $ship->ship->getLength();
         $integrity = $length;
 
-        if ($ship['orientation']) {
-            
-            $begin  = $ship['y_coord'];
-            $static = $ship['x_coord'];
+        $x = $ship['x_coord'];
+        $y = $ship['y_coord'];
 
-            for ($cell = $begin; $cell < $begin + $length; $cell++) {
+        $begin = $ship->orientation == self::VERTICAL ? $y : $x;
 
-                if ($field[$static][$cell][1] == 1) {
-                    $integrity -= 1;
-                    $field[$static][$cell][0] = $name;
-                } else {
-                    $field[$static][$cell][0] = $isEnemy ? 'hidden' : $name;
-                }
+        for ($cell = $begin; $cell < $begin + $length; $cell++) {
 
+            if ($ship->orientation == self::VERTICAL) {
+                $y = $cell;
+            } else {
+                $x = $cell;
             }
 
-            if ($integrity <= 0) {
-                $this->createEdges($field, $ship, $length);
-            }
-
-        } else {
-
-            $begin = $ship['x_coord'];
-            $static = $ship['y_coord'];
-
-
-            for ($cell = $begin; $cell < $begin + $length; $cell++) {
-
-                if ($field[$cell][$static][1] == 1) {
-                    $integrity -= 1;
-                    $field[$cell][$static][0] = $name;
-                } else {
-                    $field[$cell][$static][0] = $isEnemy ? 'hidden' : $name;
-                }
-
-            }
-
-            if ($integrity <= 0) {
-                $this->createEdges($field, $ship, $length);
+            if ($field[$x][$y][1] == 1) {
+                $integrity -= 1;
+                $field[$x][$y][0] = $name;
+            } else {
+                $field[$x][$y][0] = $isEnemy ? 'hidden' : $name;
             }
 
         }
 
+        if ($integrity <= 0) {
+            $this->createEdges($field, $ship, $length);
+        }
+
     }
+
 
     private function createEdges(&$field, $ship, $length) {
 
-        if($ship['orientation']) {
-            $begin  = $ship['y_coord'];
-            $static = $ship['x_coord'];
+        $enemy = $ship->player->game->getEnemy($ship->player);
+
+        if($ship->orientation == self::VERTICAL) {
+            $begin  = $ship->y_coord;
+            $static = $ship->x_coord;
 
             for ($cell = $begin-1; $cell < $begin+$length+1; $cell++) {
 
                 if (isset($field[$static][$cell]) && ($cell == $begin-1 || $cell == $begin + $length)) {
                     $field[$static][$cell][1] = 1;
 
-                    // $this->user->shots()->create([
-                    //     'player_id' => $this->user->id,
-                    //     'x_coord'   => $static,
-                    //     'y_coord'   => $cell
-                    // ]);
+                    $enemy->shots()->create([
+                         'player_id' => $ship->player->id,
+                         'x_coord'   => $static,
+                         'y_coord'   => $cell
+                     ]);
                 }
 
                 if (isset($field[$static-1][$cell])) {
                     $field[$static-1][$cell][1] = 1;
 
-                    // $this->user->shots()->create([
-                    //     'player_id' => $this->user->id,
-                    //     'x_coord'   => $static-1,
-                    //     'y_coord'   => $cell
-                    // ]);
+                    $enemy->shots()->create([
+                         'player_id' => $ship->player->id,
+                         'x_coord'   => $static-1,
+                         'y_coord'   => $cell
+                     ]);
                 }
 
                 if (isset($field[$static+1][$cell])) {
                     $field[$static+1][$cell][1] = 1;
 
-                    // $this->user->shots()->create([
-                    //     'player_id' => $this->user->id,
-                    //     'x_coord'   => $static+1,
-                    //     'y_coord'   => $cell
-                    // ]);
+                    $enemy->shots()->create([
+                         'player_id' => $ship->player->id,
+                         'x_coord'   => $static+1,
+                         'y_coord'   => $cell
+                     ]);
                 }
             }
 
         } else {
-            $begin = $ship['x_coord'];
-            $static = $ship['y_coord'];
+            $begin = $ship->x_coord;
+            $static = $ship->y_coord;
 
             for ($cell = $begin-1; $cell < $begin+$length+1; $cell++) {
 
                 if (isset($field[$cell][$static]) && ($cell == $begin-1 || $cell == $begin + $length)) {
                     $field[$cell][$static][1] = 1;
 
-                    // $this->user->shots()->create([
-                    //     'player_id' => $this->user->id,
-                    //     'x_coord'   => $cell,
-                    //     'y_coord'   => $static
-                    // ]);
+                    $enemy->shots()->create([
+                         'player_id' => $ship->player->id,
+                         'x_coord'   => $cell,
+                         'y_coord'   => $static
+                     ]);
                 }
 
                 if (isset($field[$cell][$static-1])) {
                     $field[$cell][$static-1][1] = 1;
 
-                    // $this->user->shots()->create([
-                    //         'player_id' => $this->user->id,
-                    //         'x_coord'   => $cell,
-                    //         'y_coord'   => $static-1
-                    // ]);
+                    $enemy->shots()->create([
+                             'player_id' => $ship->player->id,
+                             'x_coord'   => $cell,
+                             'y_coord'   => $static-1
+                     ]);
                 }
 
                 if (isset($field[$cell][$static+1])) {
                     $field[$cell][$static+1][1] = 1;
 
-                    // $this->user->shots()->create([
-                    //     'player_id' => $this->user->id,
-                    //     'x_coord'   => $cell,
-                    //     'y_coord'   => $static+1
-                    // ]);
+                    $enemy->shots()->create([
+                         'player_id' => $ship->player->id,
+                         'x_coord'   => $cell,
+                         'y_coord'   => $static+1
+                     ]);
                 }
             }
         }
@@ -220,18 +219,23 @@ class ShipInSea extends Model
         }
     }
 
+    public function ship()
+    {
+        return $this->belongsTo(Ship::class, 'ship_id');
+    }
+
     public function clear($player)
     {
         $player->ships->each(fn ($ship) => $ship->delete());
     }
 
-    public function addOneShip($ship, $player)
-    {   
+    public function addOneShip(array $ship, Player $player)
+    {
         if(empty($ship['ship'])) {
             return "Не переданы обязательные параметры";
         }
 
-        if (empty($ship['x']) && empty($ship['y'])) {
+        if (!isset($ship['x']) && !isset($ship['y'])) {
             $this->deleteOneShip($ship, $player->id);
             return;
         }
@@ -255,11 +259,11 @@ class ShipInSea extends Model
 
     }
 
-    public function addAllShips($ships, $code) 
+    public function addAllShips(array $ships, Player $player)
     {
         $error = '';
         foreach($ships as $ship) {
-            $error = $this->addOneShip($ship, $code);
+            $error = $this->addOneShip($ship, $player);
             if (!empty($error)) {
                 break;
             }
@@ -267,17 +271,16 @@ class ShipInSea extends Model
         return $error;
     }
 
-    private function getShipIdByName($name) 
+    private function getShipIdByName($name)
     {
         $ship = Ship::getShipByName($name);
 
         return $ship['id'];
     }
 
-    public function getPlacedShips($code) 
+    public function getPlacedShips(Collection $ships)
     {
         $data = [];
-        $ships = $this->select('ship_id')->where('player_id', '=', $code)->get();
         foreach ($ships as $ship) {
             $data[] = Ship::getName($ship['ship_id']);
         }
@@ -327,7 +330,7 @@ class ShipInSea extends Model
 
                     return "Пересечение с другим кораблем";
                 }
-    
+
             }
         }
 

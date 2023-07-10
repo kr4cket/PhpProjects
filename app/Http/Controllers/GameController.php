@@ -15,12 +15,13 @@ class GameController extends Controller
 {
     public function start(GameService $service)
     {
-        return $service->createNewGame();
+        $response = $service->createNewGame();
+        return response()->json($response);
     }
 
-    public function status(Game $id, Player $code, GameService $service)
+    public function status(Game $game, Player $player, GameService $service)
     {
-        $info = $service->getInfo($code, $id);
+        $info = $service->getInfo($player, $game);
         if ($info) {
             return response()->json($info);
         }
@@ -32,18 +33,22 @@ class GameController extends Controller
         ]);
     }
 
-    public function ready(Game $id, Player $code, GameService $service)
+    public function ready(Game $game, Player $player, GameService $service)
     {
-       $data = $service->getReady($id, $code);
 
-        if($data['success']) {
-            return response()->json($data);
+        if ($service->isShipsPlaced($player)) {
+
+            $data = $service->getReady($game, $player);
+            if ($data['success']) {
+                return response()->json($data);
+            }
+
         }
 
         return response()->json([
             'success'   => false,
             'error'     => 105,
-            'message'   => "Ошибка подключения"
+            'message'   => "На поле должны быть установлены все корабли!"
         ]);
     }
 

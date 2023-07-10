@@ -6,6 +6,22 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Player;
 
+/**
+ * App\Models\Game
+ *
+ * @property int $id
+ * @property int $status
+ * @property string $user_order
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Player> $players
+ * @property-read int|null $players_count
+ * @method static \Illuminate\Database\Eloquent\Builder|Game newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Game newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Game query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Game whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Game whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Game whereUserOrder($value)
+ * @mixin \Eloquent
+ */
 class Game extends Model
 {
     use HasFactory;
@@ -43,15 +59,16 @@ class Game extends Model
         $this->save();
     }
 
-    public function enemyColumn(string $columnName)
+    public function getEnemy(Player $player)
     {
-        $this->playerColumn = $columnName;
+        $players = $this->players;
+        return $player->id == $players[0]->id ? $players[1] : $players[0];
     }
 
     public function players()
     {
         return $this->hasMany(Player::class, 'game_id');
-    }    
+    }
 
 
 }

@@ -11,47 +11,63 @@ use App\Services\GameService;
 
 class ShipInSeaController extends Controller
 {
-    public function place(Game $id, Request $request, Player $code, GameService $service)
+    public function place(Game $game, Request $request, Player $player, GameService $service)
     {
-        $postData = $request->post();
-        $error = $service->placeShips($postData, $code);
+        $error = 'Вы уже объявили о своей готовности!';
 
-        if (empty($error)) {
-            
-            return response()->json([
-                'success'   => true,
-            ]);
+        if ($game->status == 1 && $player->me_ready == 0) {
+
+            $postData = $request->post();
+            $error = $service->placeShips($postData, $player);
+
+            if (empty($error)) {
+
+                return response()->json([
+                    'success'   => true,
+                ]);
+            }
+
         }
+
 
         return response()->json([
             'success'   => false,
-            'error'     => 104,
+            'error'     => 109,
             'message'   => $error
         ]);
     }
 
-    public function shot(Game $id, Player $code, GameService $service, Request $request)
+    public function shot(Game $game, Player $player, GameService $service, Request $request)
     {
-        $data = $request->post();
-        $response = $service->makeShot($id, $code,$data);
+        $message = "Невозможно выстрелить!";
 
-        if($response) {
-            return response()->json([
-                'success' => $response,
-            ]);
+        if ($game->status > 1) {
+            $data = $request->post();
+            $response = $service->makeShot($game, $player, $data);
+
+            if($response) {
+                return response()->json([
+                    'success' => $response,
+                ]);
+            }
+
+            $message = "сюда уже стреляли";
+
         }
 
         return response()->json([
             'success'   => false,
             'error'     => 105,
-            'message'   => 'Сюда уже стреляли'
+            'message'   => $message
         ]);
     }
 
-    public function clear(Game $id, Player $code, GameService $service) 
+    public function clear(Game $game, Player $player, GameService $service)
     {
-        return response()->json([
-            'success'   => $service->clearField($code) ?? false,
-        ]);
+        if ($player->me_ready == 0) {
+            return response()->json([
+                'success'   => $service->clearField($player) ?? false,
+            ]);
+        }
     }
 }

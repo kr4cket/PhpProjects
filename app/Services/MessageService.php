@@ -23,15 +23,14 @@ class MessageService
 
     public function getMessages(Game $game, Player $player, $lastTime)
     {
-        
+
         if ($lastTime != 'false') {
             $data['lastTime'] = $lastTime;
         } else {
             $data['lastTime'] = 0;
         }
 
-        $players = $game->players;
-        $enemy = $player->id == $players[0]->id ? $players[1] : $players[0];
+        $enemy = $game->getEnemy($player);
 
         $myMessages = $player->messages;
         $enemyMessages = $enemy->messages;
@@ -46,11 +45,11 @@ class MessageService
                 $response['my'] = $player->id == $message->player_id ? true : false;
                 $response['message'] = $message->message;
                 $data['messages'][] = $response;
-                $data['lastTime'] = $response['time']+1; 
+                $data['lastTime'] = $response['time']+1;
             }
 
-        }   
-        
+        }
+
         return $data;
     }
 }
