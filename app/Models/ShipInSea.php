@@ -264,35 +264,32 @@ class ShipInSea extends Model
             return "Выход за границы поля!";
         }
 
-        if ($shipData['orientation'] == 'vertical') {
-            for ($cell = $y-1; $cell < $y + $length+1; $cell++) {
-
-                if (
-                    (isset($field[$x-1][$cell]) && ($field[$x-1][$cell][0] != 'empty' && $field[$x-1][$cell][0] != $shipData['ship'])) ||
-                    (isset($field[$x+1][$cell]) && ($field[$x+1][$cell][0] != 'empty' && $field[$x+1][$cell][0] != $shipData['ship'])) ||
-                    (isset($field[$x][$cell])   && ($field[$x][$cell][0]   != 'empty' && $field[$x][$cell][0]   != $shipData['ship']))
-                ) {
-
-                    return "Пересечение с другим кораблем";
-                }
-
-            }
+        if($shipData['orientation'] == 'vertical') {
+            $begin  = $shipData['y'];
+            $edges = $shipData['x'];
         } else {
-
-            for ($cell = $x-1; $cell < $x + $length+1; $cell++) {
-
-                if (
-                    (isset($field[$cell][$y-1]) && ($field[$cell][$y-1][0] != 'empty' && $field[$cell][$y-1][0] != $shipData['ship'])) ||
-                    (isset($field[$cell][$y+1]) && ($field[$cell][$y+1][0] != 'empty' && $field[$cell][$y+1][0] != $shipData['ship'])) ||
-                    (isset($field[$cell][$y])   && ($field[$cell][$y][0]   != 'empty' && $field[$cell][$y][0]   != $shipData['ship']))
-                ) {
-
-                    return "Пересечение с другим кораблем";
-                }
-
-            }
+            $begin  = $shipData['x'];
+            $edges =  $shipData['y'];
         }
 
+        for ($edge = $edges - 1; $edge < $edges+2; $edge++) {
+
+            for ($cell = $begin - 1; $cell < $length+$begin+1; $cell++) {
+
+                if($shipData['orientation'] == 'vertical') {
+                    $y = $cell;
+                    $x = $edge;
+                } else {
+                    $x = $cell;
+                    $y = $edge;
+                }
+
+                if (isset($field[$x][$y]) && ($field[$x][$y][0] != 'empty' && $field[$x][$y][0] != $shipData['ship'])) {
+                    return "Пересечение с другим кораблем";
+                }
+            }
+
+        }
     }
 
 }
