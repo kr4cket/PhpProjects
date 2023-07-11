@@ -49,6 +49,11 @@ class GameService
 
     public function getInfo(Player $player, Game $game): array
     {
+
+        /*
+        метод собирает всю информацию о конкретной игре
+        */
+
         $info = [];
         $enemy = $game->getEnemy($player);
 
@@ -73,6 +78,11 @@ class GameService
 
     public function getReady(Game $game, Player $player)
     {
+        /*
+        метод проверяет готовность игроков
+        если оба игрока готовы -> игра переходит в активную стадию
+        */
+
         $player->me_ready = 1;
         $player->save();
         $enemy = $game->getEnemy($player);
