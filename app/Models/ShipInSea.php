@@ -53,16 +53,21 @@ class ShipInSea extends Model
         return $field;
     }
 
-    public function getField(Collection $ships, $playerShots, bool $isEnemy)
+
+    public function filledField(Collection $ships, $playerShots, bool $isEnemy)
     {
         $userField = $this->getEmptyField();
-        $this->createShots($playerShots, $userField, $isEnemy);
+        $this->placeShots($playerShots, $userField, $isEnemy);
 
         foreach ($ships as $ship) {
-            $this->createShip($ship, $userField, $isEnemy);
+            $this->placeShip($ship, $userField, $isEnemy);
         }
-
         return $userField;
+    }
+
+    public function getField(Collection $ships, $playerShots, bool $isEnemy)
+    {
+        return $this->filledField($ships, $playerShots, $isEnemy);
     }
 
     public function fieldCheckShot(ShipInSea $ship, array $shots)
@@ -94,7 +99,7 @@ class ShipInSea extends Model
         return false;
     }
 
-    private function createShip(ShipInSea $ship, &$field, $isEnemy)
+    private function placeShip(ShipInSea $ship, &$field, $isEnemy)
     {
         $name = $ship->ship->name;
         $length = $ship->ship->getLength();
@@ -171,7 +176,7 @@ class ShipInSea extends Model
         ]);
     }
 
-    private function createShots($shots, &$field)
+    private function placeShots($shots, &$field)
     {
         foreach ($shots as $shot) {
             $field[$shot['x_coord']][$shot['y_coord']][1] = 1;
@@ -237,18 +242,20 @@ class ShipInSea extends Model
         return $ship['id'];
     }
 
-    public function getPlacedShips(Collection $ships)
+    public function getPlacedShips(Collection $ships): array
     {
         $data = [];
         foreach ($ships as $ship) {
             $data[] = Ship::getName($ship['ship_id']);
         }
+
         return $data;
     }
 
-    private function deleteOneShip($shipData, $code)
+    private function deleteOneShip($shipData, $code): void
     {
         $this->where('player_id', '=', $code)->where('ship_id', '=', $this->getShipIdByName($shipData['ship']))->delete();
+
     }
 
     private function checkPosition($shipData, $player)
