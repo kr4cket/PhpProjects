@@ -57,12 +57,17 @@ class ShipInSea extends Model
         return $field;
     }
 
+    /**
+     * Наполняет поле игрока имеющимимся данными
+     * если данных для наполнения нет -> возвращает пустое поле
+     *
+     * @param Collection $ships
+     * @param $playerShots
+     * @param bool $isEnemy
+     * @return array
+     */
     public function filledField(Collection $ships, $playerShots, bool $isEnemy)
     {
-        /*
-            наполняет поле игрока имеющимися данными
-            если данных для наполнения нет -> возвращает пустое поле
-        */
 
         $userField = $this->getEmptyField();
         $this->placeShots($playerShots, $userField, $isEnemy);
@@ -79,13 +84,17 @@ class ShipInSea extends Model
         return $this->filledField($ships, $playerShots, $isEnemy);
     }
 
+    /**
+     * Проверка на попадаение по кораблю
+     * Попал -> true
+     * Не попал -> false
+     *
+     * @param ShipInSea $ship
+     * @param array $shots
+     * @return bool
+     */
     public function fieldCheckShot(ShipInSea $ship, array $shots)
     {
-        /*
-             метод проверяет попал ли выстрел в корабль
-             если попал -> возвращает true
-             если не попал -> возвращает false
-         */
 
         $length = $ship->ship->getLength();
 
@@ -114,12 +123,17 @@ class ShipInSea extends Model
         return false;
     }
 
+    /**
+     * Размещает корабль на игровом поле
+     * Если на всех клетках корабля есть выстрелы (корабль уничтожен) -> создает границы разрушенного корабля
+     *
+     * @param ShipInSea $ship
+     * @param $field
+     * @param $isEnemy
+     * @return void
+     */
     private function placeShip(ShipInSea $ship, &$field, $isEnemy)
     {
-        /*
-         метод размещает корабль на игровом поле
-         если на всех клетках корабля есть выстрелы (корабль уничтожен) -> создает границы разрушенного корабля
-        */
 
         $name = $ship->ship->name;
         $length = $ship->ship->getLength();
@@ -153,12 +167,15 @@ class ShipInSea extends Model
 
     }
 
-
+    /**
+     * Заполняет поля вокруг разрушенного корабля
+     *
+     * @param $field
+     * @param $ship
+     * @param $length
+     * @return void
+     */
     private function createEdges(&$field, $ship, $length) {
-
-        /*
-         метод заполняет поля вокруг разрушенного корабля
-        */
 
         $enemy = $ship->player->game->getEnemy($ship->player);
 
@@ -213,12 +230,15 @@ class ShipInSea extends Model
         $player->ships->each(fn ($ship) => $ship->delete());
     }
 
+    /**
+     * Добавляет информацию о корабле в базу данных
+     *
+     * @param array $ship
+     * @param Player $player
+     * @return string|void
+     */
     public function addOneShip(array $ship, Player $player)
     {
-
-        /*
-         метод добавляет информацию о корабле в Базу Данных
-        */
 
         if(empty($ship['ship'])) {
             return "Не переданы обязательные параметры";
@@ -283,13 +303,18 @@ class ShipInSea extends Model
 
     }
 
+
+    /**
+     * Проверяет пересечение корабля с остальными объектами на поле
+     * если корабль пересекается с другим кораблем -> возвраещает ошибку
+     * если корабль выходит за границы поля -> возвраещает ошибку
+     *
+     * @param $shipData
+     * @param $player
+     * @return string|void
+     */
     private function checkPosition($shipData, $player)
     {
-        /*
-         метод проверяет пересечение корабля с остальными объектами на поле
-         если корабль пересекается с другим кораблем -> возвраещает ошибку
-         если корабль выходит за границы поля -> возвраещает ошибку
-        */
 
         $length = $shipData['ship'][0];
         $field = $this->getMyField($player);

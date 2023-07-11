@@ -47,12 +47,15 @@ class GameService
 
     }
 
+    /**
+     * Собирает всю информацию об игре
+     *
+     * @param Player $player
+     * @param Game $game
+     * @return array[]
+     */
     public function getInfo(Player $player, Game $game): array
     {
-
-        /*
-        метод собирает всю информацию о конкретной игре
-        */
 
         $info = [];
         $enemy = $game->getEnemy($player);
@@ -76,12 +79,17 @@ class GameService
 
     }
 
+
+    /**
+     * Проверяет готовность игроков
+     * Если оба игрока готовы -> игра переходит в активную стадию
+     *
+     * @param Game $game
+     * @param Player $player
+     * @return array
+     */
     public function getReady(Game $game, Player $player)
     {
-        /*
-        метод проверяет готовность игроков
-        если оба игрока готовы -> игра переходит в активную стадию
-        */
 
         $player->me_ready = 1;
         $player->save();
