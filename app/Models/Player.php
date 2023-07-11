@@ -44,7 +44,7 @@ class Player extends Model
 
     public function ships()
     {
-        return $this->hasMany(ShipInSea::class, 'player_id');
+        return $this->hasMany(ShipInSea::class, 'player_id')->with('ship');
     }
 
     public function shots()

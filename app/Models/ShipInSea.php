@@ -67,6 +67,7 @@ class ShipInSea extends Model
         $userField = $this->getEmptyField();
         $this->placeShots($playerShots, $userField, $isEnemy);
 
+
         foreach ($ships as $ship) {
             $this->placeShip($ship, $userField, $isEnemy);
         }
@@ -80,7 +81,6 @@ class ShipInSea extends Model
 
     public function fieldCheckShot(ShipInSea $ship, array $shots)
     {
-
         /*
              метод проверяет попал ли выстрел в корабль
              если попал -> возвращает true
