@@ -29,7 +29,6 @@ class ShipInSeaController extends Controller
 
         }
 
-
         return response()->json([
             'success'   => false,
             'error'     => 109,

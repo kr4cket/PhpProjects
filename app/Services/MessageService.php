@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\Game;
+use App\Models\Message;
 use App\Models\Player;
+use DateTime;
 
 class MessageService
 {
@@ -32,21 +34,24 @@ class MessageService
 
         $enemy = $game->getEnemy($player);
 
-        $myMessages = $player->messages;
-        $enemyMessages = $enemy->messages;
+        $messages = Message::where('time', '>', date('Y/m/d H:i:s', $data['lastTime']))
+            ->where(function ($query) use ($enemy, $player){
+                $query->where('player_id', '=', $player->id)
+                    ->orWhere('player_id', '=', $enemy->id);
+            })
+            ->orderBy('time')
+            ->get();
 
-        $messages = $myMessages->merge($enemyMessages);
 
         foreach ($messages as $message) {
             $response = [];
-            $response['time'] = strtotime($message->time);
-            if ($response['time'] > $data['lastTime']) {
 
-                $response['my'] = $player->id == $message->player_id ? true : false;
-                $response['message'] = $message->message;
-                $data['messages'][] = $response;
-                $data['lastTime'] = $response['time']+1;
-            }
+            $response['time'] = strtotime($message->time);
+            $response['my'] = $player->id == $message->player_id ? true : false;
+            $response['message'] = $message->message;
+
+            $data['messages'][] = $response;
+            $data['lastTime'] = $response['time'];
 
         }
 

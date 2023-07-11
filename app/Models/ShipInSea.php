@@ -260,7 +260,7 @@ class ShipInSea extends Model
 
         $begin = $shipData['orientation'] == 'vertical' ? $y : $x;
 
-        if ($begin + $length > 10) {
+        if ($begin < 0 || $begin + $length > 10) {
             return "Выход за границы поля!";
         }
 
