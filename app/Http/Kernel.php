@@ -42,6 +42,8 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \App\Http\Middleware\Cors::class,
+            \App\Http\Middleware\CheckGameAndPlayer::class
         ],
     ];
 
@@ -75,6 +77,7 @@ class Kernel extends HttpKernel
         'guest'         => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'signed'        => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle'      => \Illuminate\Routing\Middleware\ThrottleRequests::class,
-        'cors'          => \App\Http\Middleware\Cors::class, // added
+        'cors'          => \App\Http\Middleware\Cors::class,
+        'accordance'    => \App\Http\Middleware\CheckGameAndPlayer::class
     ];
 }

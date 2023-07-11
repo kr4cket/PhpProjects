@@ -17,7 +17,7 @@ use App\Http\Controllers\ShipInSeaController;
 |
 */
 
-Route::middleware(['cors'])->group(function () {
+Route::middleware([])->group( function () {
 
     Route::post('/start',[GameController::class,'start']);
     Route::post('/status/{game}/{player}',[GameController::class,'status']);
@@ -28,4 +28,6 @@ Route::middleware(['cors'])->group(function () {
     Route::post('/chat-send/{game}/{player}', [MessageController::class, 'send']);
     Route::get('/chat-load/{game}/{player}', [MessageController::class, 'get']);
 });
+
+
 
