@@ -46,7 +46,9 @@ class ShipInSeaController extends Controller
 
             if($response) {
                 return response()->json([
-                    'success' => $response,
+                    'success' => $response['success'],
+                    'hit'     => $response['hit'] ?? '',
+                    'kill'    => $response['kill'] ?? ''
                 ]);
             }
 

@@ -280,6 +280,29 @@ class ShipInSea extends Model
         return $error;
     }
 
+    public function getCoords()
+    {
+        $length = $this->ship->getLength();
+        $coords = [];
+
+        for ($cell = 0; $cell < $length; $cell++) {
+            if ($this->orientation == self::VERTICAL) {
+                $y = $this->y_coord + $cell;
+                $x = $this->x_coord;
+            } else {
+                $x = $this->x_coord + $cell;
+                $y = $this->y_coord;
+            }
+
+            $coords[] = [
+                'x' => $x,
+                'y' => $y
+            ];
+        }
+
+        return $coords;
+    }
+
     private function getShipIdByName($name)
     {
         $ship = Ship::getShipByName($name);

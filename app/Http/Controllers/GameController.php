@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\GameResource;
-use App\Http\Resources\StatusResourse;
 use App\Models\Game;
 use App\Models\Player;
 use App\Models\ShipInSea;

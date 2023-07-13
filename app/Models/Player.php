@@ -39,7 +39,7 @@ class Player extends Model
      * @var int|mixed
      */
     protected $keyType = 'string';
-    protected $fillable = ['id', 'game_id','me_ready', 'my_turn'];
+    protected $fillable = ['id', 'game_id', 'me_ready', 'my_turn'];
     public $timestamps = false;
 
     public function ships()
@@ -56,11 +56,12 @@ class Player extends Model
     {
         return $this->belongsTo(Game::class);
     }
+
     public function addPlayer(int $game)
     {
         $this->create([
-            'id'        => Str::random(10),
-            'game_id'   => $game
+            'id' => Str::random(10),
+            'game_id' => $game
         ]);
     }
 
@@ -71,10 +72,25 @@ class Player extends Model
             'x_coord' => $shotData['x'],
             'y_coord' => $shotData['y']
         ]);
-
     }
 
+    public function isShipDead(array $coords)
+    {
+        $integrity = count($coords);
+        $shots = $this->shots;
 
+        foreach ($shots as $shot) {
+
+            foreach ($coords as $coord) {
+
+                if ($coord['x'] == $shot->x_coord && $coord['y'] == $shot->y_coord) {
+                    $integrity -= 1;
+                }
+            }
+        }
+
+        return $integrity <= 1;
+    }
 
     public function messages()
     {

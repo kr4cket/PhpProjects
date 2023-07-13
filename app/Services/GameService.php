@@ -147,10 +147,11 @@ class GameService
     {
         $shots = $player->shots;
         $enemy = $game->getEnemy($player);
+        $data = [];
 
         foreach ($shots as $shot) {
             if ($shot->x_coord == $shotData['x'] && $shot->y_coord == $shotData['y']) {
-                return false;
+                return $data;
             }
         }
 
@@ -162,21 +163,24 @@ class GameService
         $enemyShips = $enemy->ships;
         $changeOrder = true;
 
+        $player->updateShotsData($shotData);
+
         foreach ($enemyShips as $ship) {
 
             if ($this->field->fieldCheckShot($ship, $shotData)) {
                 $changeOrder = false;
+                $data['hit'] = true;
+                $data['kill'] = $player->isShipDead($ship->getCoords());
                 $enemy->health -= 1;
                 break;
             }
 
         }
 
-        $player->updateShotsData($shotData);
-
         if($enemy->health <= 0) {
             $game->endGame();
-            return true;
+            $data['success'] = true;
+            return $data;
         }
 
         if($changeOrder) {
@@ -186,10 +190,11 @@ class GameService
         }
 
         $game->save();
-        $player->save();
         $enemy->save();
+        $player->save();
 
-        return true;
+        $data['success'] = true;
+        return $data;
     }
 
 }
