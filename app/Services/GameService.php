@@ -3,6 +3,28 @@
 namespace App\Services;
 class GameService
 {
+    public function makeShot($field): array
+    {
+        $isShotMade = false;
+
+        while (!$isShotMade) {
+            $x = rand(0, 9);
+            $y = rand(0, 9);
+
+            $cell = $field[$x][$y];
+
+            $shot = $cell[1];
+
+            if ($shot != 1) {
+                $isShotMade = true;
+            }
+        }
+
+        return [
+            'x' => $x,
+            'y' => $y
+        ];
+    }
 
     public function generateShips(): array
     {
@@ -42,9 +64,8 @@ class GameService
 
     }
 
-    public function fillField(&$field, $x, $y, $length, $posOrient)
+    public function fillField(&$field, $x, $y, $length, $posOrient): void
     {
-        $begin = $posOrient == 'vertical' ? $y : $x;
 
         for ($cell = 0; $cell < $length; $cell++ ){
 
@@ -60,7 +81,7 @@ class GameService
         }
     }
 
-    public function checkProperties($x, $y, $length, $position, $field)
+    public function checkProperties($x, $y, $length, $position, $field): bool
     {
         $begin = $position == 'vertical' ? $y : $x;
 

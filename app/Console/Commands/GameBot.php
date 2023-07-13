@@ -27,7 +27,7 @@ class GameBot extends Command
     /**
      * Execute the console command.
      */
-    public function handle(GameController $game, GameService $service)
+    public function handle(GameController $game, GameService $service): void
     {
         $arguments = $this->arguments();
 
@@ -37,12 +37,18 @@ class GameBot extends Command
             $message = "Подключение к игре...";
         } else {
 
-            $game->startNewGame($arguments['url']);
-            $message = "Игра создана\nОжидание игрока...";
+            $url = $game->startNewGame($arguments['url']);
+            $message = "Игра создана".PHP_EOL."Ссылка для подключения к игре: $url".PHP_EOL."Ожидание игрока...";
         }
 
-        $game->startPlay($arguments, $service);
-
         $this->info($message);
+
+        $gameResult = $game->startGame($service);
+
+        if ($gameResult) {
+            $this->info("Поздравляю, вы победили!");
+        } else {
+            $this->error("Увы, вы проиграли");
+        }
     }
 }
