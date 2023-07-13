@@ -2,10 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\ApiPerformanceController;
-use App\Http\Controllers\GameController;
+use App\Api\ApiClient;
+use App\Services\BotService;
 use App\Services\GameService;
-use GuzzleHttp\Client;
 use Illuminate\Console\Command;
 
 class GameBot extends Command
@@ -27,23 +26,24 @@ class GameBot extends Command
     /**
      * Execute the console command.
      */
-    public function handle(GameController $game, GameService $service): void
+    public function handle(BotService $bot, GameService $service): void
     {
         $arguments = $this->arguments();
+        $apiClient = new ApiClient($arguments['url'], $arguments['gameId'] ?? 0, $arguments['playerCode'] ?? '');
+        $bot->setApiClient($apiClient);
 
         if (isset($arguments['gameId']) && isset($arguments['playerCode'])) {
 
-            $game->connectToGame($arguments);
             $message = "Подключение к игре...";
         } else {
 
-            $url = $game->startNewGame($arguments['url']);
+            $url = $bot->startNewGame($arguments['url']);
             $message = "Игра создана".PHP_EOL."Ссылка для подключения к игре: $url".PHP_EOL."Ожидание игрока...";
         }
 
         $this->info($message);
 
-        $gameResult = $game->startGame($service);
+        $gameResult = $bot->startGame($service);
 
         if ($gameResult) {
             $this->info("Поздравляю, вы победили!");
