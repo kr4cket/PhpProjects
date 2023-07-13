@@ -61,7 +61,6 @@ class GameService
 
         return $result;
 
-
     }
 
     public function fillField(&$field, $x, $y, $length, $posOrient): void

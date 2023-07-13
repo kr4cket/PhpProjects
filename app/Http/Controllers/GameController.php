@@ -19,7 +19,7 @@ class GameController extends Controller
     {
         $this->bot = new Client([
             'base_uri' => $url . '/api/',
-            'timeout' => 2.0,
+            'timeout' => 5.0,
         ]);
     }
 
@@ -108,11 +108,11 @@ class GameController extends Controller
 
                 echo("Выстрел сделан! Координаты выстрела".PHP_EOL."X: ".$data['x']." Y: ".$data['y'].PHP_EOL);
 
-                if ($isShot->hit) {
+                if (isset($isShot->hit) && $isShot->hit) {
                     echo("Попадание!".PHP_EOL);
                 }
 
-                if (isset($isShot->kill)) {
+                if (isset($isShot->kill) && $isShot->kill) {
                     echo("Корабль противника потоплен!!".PHP_EOL);
                 }
             }
