@@ -70,5 +70,70 @@ class Game extends Model
         return $player->id == $players[0]->id ? $players[1] : $players[0];
     }
 
+    public function getRecords($gameUrl, $mainUrl): array
+    {
+        $records = [];
 
+        foreach (self::all() as $game) {
+
+            if ($game->status == self::BEGIN) {
+                $gamePath = $gameUrl.'placement/';
+            } else {
+                $gamePath = $gameUrl.'game/';
+            }
+
+            $gamePath.= $game->id.'/';
+            $players = $game->players;
+
+            $records[] = [
+                'id'        => $game->id,
+                'code'      => $players[0]->id,
+                'codeLink'  => $gamePath.$players[0]->id,
+                'invite'    => $players[1]->id,
+                'inviteLink'=> $gamePath.$players[1]->id,
+                'status'    => $this->getStatus($game->status),
+                'turn'      => $game->user_order ?? '',
+                'statsLink' => $mainUrl.'/'.$game->id ?? ''
+            ];
+
+        }
+
+        return $records;
+    }
+
+    public function getStats()
+    {
+        $stats = [];
+        $stats['winner'] = $this->user_order;
+        $stats['allShots'] = 0;
+
+        $players = $this->players;
+
+        foreach ($players as $player) {
+            $playerName = $player->id == $this->user_order ? 'firstPlayer' : 'secondPlayer';
+            $stats[$playerName] = [
+                'name'      => $player->id,
+                'shots'     => $player->shots->count(),
+                'health'    => $player->health
+            ];
+
+            $stats['allShots'] += $player->shots->count();
+        }
+
+        return $stats;
+    }
+
+
+    private function getStatus($status)
+    {
+        if ($status == self::BEGIN){
+            return "Стадия планирования";
+        }
+
+        if ($status == self::IN_PROCESS){
+            return "В игре";
+        }
+
+        return "Игра закончена";
+    }
 }
